@@ -1,0 +1,92 @@
+\glsunset{DLCoal}
+An ``unlimited thirst for genome sequencing'' \cite{dhanapal2015international} is transforming research in many domains.
+Evolutionary genomic biology is no exception, as demonstrated by the 5$\,$000 Insect Genomes Project \cite{levine2011i5k,i5K},  the 10$\,$000 Plant Genomes Project \cite{cheng201810kp}, the ($\sim$60$\,$000) Vertebrate Genomes Project \cite{vgp}, and the Earth BioGenome Project \cite{lewin2018earth}, which aims to assemble genomes (or at least {\em genome-scale} data) for 1.5 million eukaryotic species in the next ten years.
+These ultra-large datasets will be leveraged to study how species evolve/adapt to their environments and how biodiversity is created/maintained.
+A crucial step in addressing these and other biological questions is the estimation of evolutionary trees (\textit{\glspl{phylogeny}}).
+
+It is well established that genetic material (DNA) can change over time; for example, one state (representing one of the four nucleotides: $A$denine, $C$ytosine, $G$uanine, or $T$hymine) may be substituted for another.
+DNA evolution is typically modeled as a \gls{SRH} Markov process, parameterized by a rooted tree with edge lengths indicating the expected number of substitutions (per site).
+Of these standard models, the simplest, introduced by Jukes and Cantor \cite{jukes1969evolution}, specifies that all 12 substitutions (e.g., $A \rightarrow C$, $C \rightarrow A$, etc.) occur at equal rates and that all four states occur at the root with equal probabilities.
+The \textit{\gls{JC}} model is not very realistic, as transitions ($A \leftrightarrow G$ and $C \leftrightarrow T$) are more likely than transversions ($A \leftrightarrow C$, $A \leftrightarrow T$, $C \leftrightarrow G$, and $G \leftrightarrow T$) \cite{kimura1980simple}. 
+The Kimura 2-parameter model \cite{kimura1980simple} allows transitions to occur at different rates than transversions, and the \textit{\Gls{GTR}} model \cite{tavare1986some} allows all six transitions/transversions to occur at different rates and all four states to occur at the root with different probabilities.
+
+Despite these differences, standard models of DNA evolution define the same generative process: a character state ($A$, $C$, $G$, or $T$) is drawn from the probability distribution of states at the root and then evolves down the tree, undergoing substitutions.
+The data observed at the leaves of the tree is referred to as a \textit{\gls{site}} or site pattern.
+Repeating this process produces a character matrix, where each column is a site and each row is a leaf.
+Phylogeny estimation is the reverse; for example, we might seek the model tree (topology and numerical parameters) that maximizes the likelihood of an observed character matrix being generated under a particular model of DNA evolution \cite{felsenstein1981evolutionary}.
+\textit{\Gls{ML}} methods seek model trees with unrooted topologies, as the likelihood of an SRH model tree is independent of the root.
+
+Prior to phylogeny estimation, a character matrix is assembled for a set of species.
+This requires collecting DNA sequences (from genomes of individuals representing these species) that evolved from the same DNA sequence in the genome of a common ancestor. Although the collected DNA sequences correspond to the same \textit{\gls{gene}}, because mutations (insertions and deletions) can accumulate over time, they may not have the same length.
+\textit{\Gls{gap}} character states ($-$) are added to the DNA sequences so that every two of nucleotides in the same column are \textit{homologous}, meaning they evolved from the same nucleotide in the genome of a common ancestor.
+The resulting character matrix is referred to as a \textit{\gls{MSA}}.
+MSAs, like phylogenies, are estimated from data, and this task has its own computational and statistical challenges \cite{chatzou2015multiple, warnow2017computational}.
+
+\textit{\Glspl{phylogenomic}} \cite{eisen1998phylogenomics} combines phylogeny estimation with \textit{\gls{genome-scale}} data, meaning that data from across the entire genome (maybe even the whole genome) is available for species of interest.
+Genome-scale enables the assembly of \textit{\glspl{multi-locusdataset}}, which contain sets (one per gene) of unaligned DNA sequences (typically one per species).
+After an MSA is estimated for each gene, phylogeny estimation can proceed in the usual fashion by combining the resulting MSAs into one big matrix (referred to as the \textit{\gls{concatenatedalignment}}) and seeking the ML model tree under a standard model of DNA evolution.
+However, this practice may be inappropriate, as biological processes can cause the evolutionary histories of individual genes (\textit{\glspl{genetree}}) to differ from each other and from the evolutionary history of the species (\textit{\gls{speciestree}}) \cite{ohno1970evol, syvanen1985cross, maddison1997gene}.
+In other words, standard models of DNA evolution assume that all sites evolve down a common tree topology, and this assumption can be violated when the input MSA contains data from multiple genes.
+
+The observation that gene trees can differ from each other and from the species tree combined with the increasing availability of genome-scale data has driven method development in recent years.
+We follow suit, focusing on species tree estimation in the presence of incomplete lineage sorting and gene duplication and loss.
+
+\textit{\Gls{ILS}} \cite{avise1983mitochondrial, pamilo1988relationships, takahata1989gene-msd, maddison1997gene} is a possible outcome of ancestry.
+A gene is passed from one individual to another through reproduction, so we can trace the inheritance of the gene backward in time; this population-level process is modeled by the \gls{MSC} \cite{tajima1983evolutionary, pamilo1988relationships, rosenberg2002probability, rannala2003bayes}.
+Complete lineage sorting occurs when the gene genealogy (gene tree) agrees with the species tree, and ILS occurs when these trees do not agree.
+The latter is more likely whenever there is a \textit{\gls{rapidradiation}} (sequence of \glspl{speciationevent} close together in time).
+Many major groups are expected to be impacted by ILS, including birds \cite{jarvis2014whole}, land plants \cite{wickett2014phylo, leebensmack2019one}, lizards \cite{linkem2016detecting}, and placental mammals \cite{mccormack2012ultraconserved}. 
+Hence, species tree estimation in the presence of ILS is receiving considerable attention \cite{degnan2009gene, edwards2009is, edwards2016implementing}.
+
+\textit{\Gls{GDL}} \cite{ohno1970evol}, as its name suggests, occurs when genes are duplicated in or lost from the genome; this can be modeled in a variety of ways, for example the probabilistic model proposed by Arvestad {\em et al.}~\cite{arvestad2003bayesian}.
+GDL as well as whole genome duplication is common in fungi \cite{butler2009evolution} and plants \cite{leebensmack2019one}; however, most methods for species tree estimation assume that genes evolve without duplications or losses.
+Therefore, prior to species tree estimation a subset of DNA sequences that evolved without duplications is identified for each \textit{\gls{multi-copy}} gene (gene that appears multiple times in a genome due to duplication events).
+This task (referred to as \textit{\gls{orthologydetection}} \cite{fitch2000homology, moreira2000molecular}) is still difficult to do correctly \cite{quest2014big, lafond2018accurate, altenhoff2019inferring}, so multi-copy genes are often excluded from species tree estimation (e.g., \cite{wickett2014phylo, leebensmack2019one}).
+Methods that can estimate species trees under models of GDL are of increasing interest, as this would enable phylogenetic signal to be extracted from multi-copy genes while avoiding the challenges of orthology detection.
+
+We are concerned with whether methods are provably \textit{\gls{statisticallyconsistent}} under models of evolution, where gene trees evolve within a species tree under a gene evolution model (e.g., the MSC model or a GDL model), and then sites evolve down each of the gene trees under a DNA evolution model (e.g., the GTR model).
+Informally, an estimation method is statistically consistent under a model if the error in the estimated model parameters (for our purposes just the unrooted species tree topology) goes to zero, as the amount of data (random samples) generated under the model and given to the method as input goes to infinity.
+This is equivalent to method reconstructing the correct unrooted species tree topology with probability converging to one, as the amount of data goes to infinity.
+If we find some condition for which this does not hold, we say that the method is \textit{\gls{statisticallyinconsistent}}; furthermore, we say that the method is \textit{\gls{positivelymisleading}} if the method reconstructs the incorrect unrooted species tree topology with probability converging to one as the amount of data goes to infinity.
+
+While statistical consistency is an important theoretical property, it only describes method performance under ideal conditions; thus, we are also concerned with whether methods have good performance in practice.
+The current standard is to benchmark methods for accuracy as well as robustness to error, model misspecification, and other challenging conditions using simulated datasets.
+
+Finally, we are concerned with whether methods scale to datasets with large numbers of genes and large numbers of species.
+There are three major classes of phylogeny estimation methods: distance methods, optimization methods, and Bayesian methods.
+Distance methods (e.g., \cite{liu2011estimating-njst, vachaspati2015astrid, dasarathy2015data-metal, allman2019species-logdet}) are typically the fastest (quadratic storage and quadratic or cubic running times, scaling with the number of species); however, optimization and Bayesian methods are preferred by the phylogenomics community.
+We focus on optimization methods, which are not as computationally intensive as Bayesian methods (e.g., \cite{heled2010bayesian, ogilvie2017starbeast2}), but nevertheless can be quite costly.
+Optimization methods are typically heuristics for NP-hard problems, so many (e.g., \cite{liu2010maximum-mpest, stamatakis2014raxml8, chaudhary2013inferring, chaudhary2014mulrf}) use a combination of hill climbing and randomization to search \textit{\gls{treespace}} (space of all possible phylogenetic trees, which grows exponentially in the number of species) until some convergence criteria are met.
+These methods do not have deterministic running times, so worst-case running time analysis cannot be provided.
+However, such methods will be costly when a large numbers of candidate trees need to be evaluated and/or when the objective function is computationally intensive to evaluate for each candidate tree; both conditions can occur for large datasets.
+The use of \gls{DP} to solve an optimization problem exactly within a constrained search space has emerged as a powerful technique \cite{hallett2000new}, enabling phylogeny estimation methods that are both statistically consistent and polynomial-time~\cite{mirarab2014astral}. 
+The worst-case running time of such methods is typically a high degree polynomial (scaling with the number of species and the number of genes), so even DP methods can be computationally intensive on large datasets.
+
+In summary, the field of phylogenetics is characterized by computational challenges (e.g., NP-hard problems and compute-intensive objective functions), statistical challenges (e.g., model misspecification), and big data challenges (e.g., large, heterogeneous, and error-ridden datasets).
+We explore all of these challenges and make the following contributions.
+
+In Chapter~\ref{chapter:include}, we benchmark five of the dominant species tree estimation methods on simulated datasets with varying levels of ILS, phylogenetic signal per gene, and \gls{missingdata}.
+For each method, we evaluate species tree accuracy as well as changes in accuracy due to \textit{\gls{genefiltering}} (the removal of genes from a multi-locus dataset based on some predetermined criteria, for example the percentage of missing data).
+Our results enable us to reconcile conflicting findings from prior studies \cite{chen2015selecting, hosner2016empirical, meiklejohn2016analysis, longo2017phylogenomic, blom2017accounting} and offer recommendations for future studies. 
+
+We then turn our attention to scaling the best methods studied in Chapter~\ref{chapter:include} to larger numbers of species, with the goal of maintaining theoretical performance (statistical consistency) and empirical performance (accuracy).
+We achieve this through the introduction of \gls{DTM} methods:~\gls{NJMerge} (Chapter~\ref{chapter:njmerge}) and its improved version \gls{TreeMerge} (Chapter~\ref{chapter:treemerge}).
+Both NJMerge and TreeMerge are designed to operate within a novel divide-and-conquer pipeline that 
+\begin{enumerate*}[label=(\roman*)]
+	\item divides species into pairwise disjoint subsets, 
+	\item estimates a tree on each subset, and then
+	\item merges the subset trees using auxiliary information, for example the evolutionary distances estimated between (some but not all)  pairs of species.
+ \end{enumerate*}
+This approach has two advantages: first, it avoids supertree estimation (which is typically formulated as an NP-hard optimization problem \cite{bininda2004phylogenetic, warnow2018supertree}), and second, it enables the final tree to obey the topological constraints implied by the subset trees (which should be estimated using the best method possible).
+We prove that divide-and-conquer pipelines using NJMerge and TreeMerge are statistically consistent under standard models of DNA evolution as well as the MSC model.
+Finally, we evaluate methods on datasets simulated under the MSC model, finding that our divide-and-conquer pipelines dramatically reduce the running time of the best species tree methods studied in Chapter~\ref{chapter:include} without sacrificing accuracy.
+
+While many methods have been proven to be statistically consistent under the MSC model, very little is known about the statistical consistency of methods when genes can be duplicated or lost.
+In a recent study, Legried {\em et al.}~\cite{legried2020polynomial} observed that several methods, including MulRF \cite{chaudhary2013inferring, chaudhary2014mulrf}, achieved superior accuracy to ASTRAL-multi \cite{rabiee2019multi}, which, at the time of this study, was the only method proven to be statistically consistent under a model of GDL.
+This finding motivates Chapter~\ref{chapter:fastmulrfs}, in which we prove that the solution to MulRF's NP-hard optimization problem is a statistically consistent estimator of the species tree under a generic model of GDL, provided that \gls{adversarialGDL} is prohibited.
+MulRF is not guaranteed to converge to an optimal solution and has a non-deterministic running time, so we propose a new method, \gls{FastMulRFS} that operates by performing a reduction on the input data and then using DP to solve MulRF's optimization problem exactly within a constrained search space \cite{vachaspati2015fastrfs}. 
+This technique enables us to prove that FastMulRFS is statistically consistent and runs in polynomial time.~Finally, we evaluate methods on biological datasets as well as datasets simulated under the \gls{DLCoal} model, which allows both GDL and ILS~\cite{rasmussen2012unified}.
+Our results show that FastMulRFS achieves comparable accuracy to MulRF while being much faster and also compares favorably to the other methods tested (ASTRAL-multi and DupTree \cite{wehe2008duptree}).
+
+We hope these contributions are steps towards a larger goal of developing species tree estimation methods that are both statistically rigorous and practical given the large-scale genome sequencing projects currently underway.
+We conclude in Chapter~\ref{chapter:conclusion} with a brief summary and a discussion of open challenges and future work.

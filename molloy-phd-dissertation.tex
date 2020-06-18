@@ -1,0 +1,253 @@
+\documentclass[tocnosub, noragright, centerchapter, fullpagesingle, 12pt]{uiuc_csthesis18}
+% Updated version of the ECE department's latex resources
+% Use draftthesis for notes and date markings on every page.  Useful when you
+%   have multiple copies floating around.
+% Use offcenter for the extra .5 inch on the left side. Needed with fullpage and fancy.
+% Use mixcasechap for compatibility with hyperref package, which does NOT like all caps default
+% Use edeposit for the adviser/committee on the title page.
+% Use tocnosub to suppress subsection and lower entries in the TOC.
+% PhD candidates use "proquest" for the proquest abstract.
+
+\makeatletter
+
+\usepackage{adjustbox}
+\usepackage{afterpage}
+
+\usepackage[ruled]{algorithm2e}
+\newcommand{\hrulealg}[0]{\vspace{0mm} \hrule \vspace{0mm}}
+
+
+\usepackage{amsfonts}
+\usepackage{amsmath} 
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsthm}
+\numberwithin{algocf}{chapter} 
+
+\renewcommand{\qedsymbol}{QED.}
+ 
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{color}
+\usepackage{comment}
+%\usepackage{fontspec}
+\usepackage[inline]{enumitem}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=black]{hyperref}
+
+\usepackage[acronym, nopostdot, numberedsection]{glossaries} % indexonlyfirst, 
+\makenoidxglossaries
+\input{glossary}
+
+\usepackage{listings}
+
+\usepackage{lscape}  % Useful for wide tables or figures.
+%\usepackage{pdflscape}
+% Add page numbers on landscaped pages
+\def\fillandplacepagenumber{
+	\par
+	\pagestyle{empty}
+	\vbox to 0pt{\vss}
+	\vfill
+	\vbox to 0pt{
+		\baselineskip 0pt
+		\hbox to \linewidth{\hss}
+		\baselineskip\footskip
+		\hbox to \linewidth{\hfil\thepage\hfil}\vss
+	}
+}
+
+\usepackage[numbers, sort]{natbib}
+\usepackage{setspace}
+\usepackage{subcaption}
+\captionsetup[subfigure]{labelformat=empty}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{corollary}{Corollary}[chapter]
+\newtheorem{conjecture}{Conjecture}[chapter]
+\newtheorem{remark}{Remark}[chapter]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PHD DISSERTATION INFORMATION
+%
+\phdthesis
+\title{Supertree-like methods for genome-scale species tree estimation}
+\author{Erin Molloy}
+\department{Computer Science}
+\degreeyear{2020}
+\advisor{Tandy Warnow\\
+             William Gropp}
+\committee{Professor Tandy Warnow, Chair\\
+                  Professor William Gropp, Co-Chair\\
+                  Professor Marc Snir\\
+                  Professor Luay Nakhleh, Rice University}
+
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COPYRIGHT
+%
+%\copyrightpage
+%\blankpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TITLE
+%
+\maketitle
+
+%\raggedright
+%\parindent 1em
+
+\frontmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ABSTRACT
+%
+\begin{abstract}
+A critical step in many biological studies is the estimation of evolutionary trees (phylogenies) from genomic data.
+Of particular interest is the species tree, which illustrates how a set of species evolved from a common ancestor.
+While species trees were previously estimated from a few regions of the genome (genes), it is now widely recognized that biological processes can cause the evolutionary histories of individual genes to differ from each other and from the species tree.
+This heterogeneity across the genome is phylogenetic signal that can be leveraged to estimate species evolution with greater accuracy.
+Hence, species tree estimation is expected to be greatly aided by current large-scale sequencing efforts, including the $5\,000$ Insect Genomes Project, the $10\,000$ Plant Genomes Project, the ($\sim$$60\,000$) Vertebrate Genomes Project, and the Earth BioGenome Project, which aims to assemble genomes (or at least genome-scale data) for 1.5 million eukaryotic species in the next ten years.
+To analyze these forthcoming datasets, species tree estimation methods must scale to thousands of species and tens of thousands of genes; however, many of the current leading methods, which are heuristics for NP-hard optimization problems, can be prohibitively expensive on datasets of this size.
+In this dissertation, we argue that new methods are needed to enable scalable and statistically rigorous species tree estimation pipelines; we then seek to address this challenge through the introduction of three supertree-like methods: NJMerge, TreeMerge, and FastMulRFS. 
+For these methods, we present theoretical results (worst-case running time analyses and proofs of statistical consistency) as well as empirical results on simulated  datasets (and a fungal dataset for FastMulRFS).
+Overall, these methods enable statistically consistent species tree estimation pipelines  that achieve comparable accuracy to the dominant optimization-based approaches while dramatically reducing running time.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DEDICATION
+%
+%\begin{dedication}
+%{\color{red} Add here.}
+%\end{dedication}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ACKNOWLEDGMENTS
+%
+\begin{acknowledgments}
+There are many people without whom this dissertation would not have been possible; this section names some of them.
+
+It is fitting that I begin by acknowledging Professors~Bill Gropp and Luke Olson. 
+They welcomed me into the scientific computing group, invested their time in training me, and when I wanted to pursue computational biology, they encouraged me to work with Prof. Tandy Warnow. 
+I am grateful for all that they have done for me and for their continued mentorship.
+
+There are no words to describe the gratitude that I feel for being advised by Prof.~Tandy Warnow. 
+She has dedicated, what felt like, a limitless amount of time and care into my training, and I have grown tremendously as a result.
+I am grateful that she introduced me to the field of phylogenomics, a field which I have a grown to love, and I have enjoyed our many discussions on this and related topics throughout the years. 
+I am especially grateful for her continued encouragement and enthusiasm, which is often the inspiration that I need to keep going.
+She has helped me live a wonderful and opportunity-filled life during graduate school, and I hope that we will continue researching together for many, many years.
+
+My advisors, Profs.~Tandy Warnow and Bill Gropp, and my committee members, Profs. Luay Nakhleh and Marc Snir, deserve many thanks for their discussion of and feedback on the work presented in this dissertation. Prof.~Marc Snir provided detailed comments on drafts of this dissertation, including the suggestion that I add a list of terminology and acronyms; if you use these lists, which I may or may not have implemented properly, thank him.
+
+I have greatly benefited from the time given to me by many other mentors, collaborators, and co-authors over the years, including Prof.~Rasmus Birn, Prof.~R{\'e}mi Patriat, Prof.~Siavash Mirarab, Chao Zhang, Dr.~Celine Scornavacca, Prof.~S{\'e}bastien Roch, Brandon Legried, Prof.~Claudia Sol{\'i}s-Lemus, Prof.~Mihai Pop, Prof.~Todd Treangen, Prof.~Mark Springer, Dr.~John Gatesy, Prof.~Satish Rao, Prof.~Vineet Bafna, Prof.~Jim Leebans-Mack, Prof.~Aron Barbey, Prof.~Becky Stumpf, Prof.~Gene Robinson, and Prof.~Michael Heath.
+I would be remiss not to acknowledge those, especially my advisors with Profs.~Luay Nakhleh, Luke Olson, Rasmus Birn, and Mihai Pop, who encouraged me to pursue an academic career.
+
+The Warnow lab has been a stimulating place to be a graduate student, and I have enjoyed working with many students and post-docs, including Kodi (Collins) Taraska, Nidhi Shah, Xilin Yu, Dr.~Nam Nguyen, Thien Le, Jed Chou, Ashu Gupta, Vlad Smirnov, Marc Canby, Srilakshmi Pattabiraman, Ananya Yammanuru, Qikai Yang, Emma Hamel, Binghui Cheng, Aditi Ghosalkar, Nikhil Agarwal, Dr.~Ruth Davidson, and Dr.~Paul Zaharias.
+Sarah Christensen, Dr.~Mike Nute, and Dr.~Pranjal Vachaspati have been my partners on this journey (a phrase that I have stolen from Mike Nute).
+I have greatly enjoyed working with them, traveling to conferences with them, and procrastinating with them.
+I am especially grateful to Mike Nute who was my remote work partner during the time that both of us were away from Champaign-Urbana and who continues to field my ``emergency statistics'' questions with enthusiasm.
+
+During graduate school, I have been fortunate to participate in the Engineering Graduate Student Advisory Committee (thanks to Rhonda McElroy, Prof.~Harry Dankowicz, and Prof.~Andreas Cangellaris), the Graduate Committee for the Society of Women Engineers (thanks to the financial support from organizations on and off campus), and the Center for Innovation in Teaching and Learning (thanks to Lucas Anderson). 
+During the fall of 2018, I was a resident at the Institute for Pure and Applied Mathematics (IPAM); this program was an excellent opportunity for developing my research agenda, so I thank IPAM, the organizers, and the participants.
+
+I also recognize the people who have worked hard so that my time as a graduate student could be easier and more productive, including those from the Computer Science Department (Prof.~Nancy Amato, Maggie Chappell, Kara MacGregor, Viveka Kudaligama, Samantha Smith, Samantha Hendon, Alayna Timbo, Elaine Wilson,  Kathy Runck, and others), the National Center for Supercomputing Applications (Stacy Walker and others), the University of Illinois at Urbana-Champaign Campus Cluster, and the Illinois Data Bank (Hoa Luong and others).
+
+I am grateful for the financial support of Ira and Debra Cohen (through their Graduate Fellowship in Computer Science) and the National Science Foundation (through its Graduate Research Fellowship Program and through Grant No. CCF-1535977 to Tandy Warnow).
+All computational experiments presented in this dissertation were performed on the Illinois Campus Cluster and the Blue Waters Supercomputer.
+The Illinois Campus Cluster is a computing resource that is supported by funds from the University of Illinois at Urbana-Champaign and is operated by the Illinois Campus Cluster Program in conjunction with the National Center for Supercomputing Applications.
+The Blue Waters Supercomputer is supported by the National Science Foundation (Grant Nos. OCI-0725070 and ACI-1238993), the State of Illinois, and as of December 2019, the National Geospatial-Intelligence Agency. 
+Blue Waters is a joint effort of the University of Illinois at Urbana-Champaign and the National Center for Supercomputing Applications.
+
+To conclude this section, I thank my family; it is through their hard work and good fortune that I have been able to live a life of privilege.
+My dad, James Molloy, deserves credit for encouraging me to study science and mathematics, and my mom, Katherine Molloy, deserves credit for teaching me how to read (a stressful after school project for both of us).
+Furthermore, my mom, in reading this entire dissertation, has found many typographical errors; if you are spared typos thank her (along with Profs.~Tandy Warnow and Marc Snir), and if you find typos blame me.
+I also thank the family and friends who have supported me during graduate school, some of whom I name here: Jamie and Albert  Molloy Rivero, James (Sr.) and Barbara Molloy, Joan Leister, Susan Swartz, Elizabeth, Jerry, and Shiela Kruepke, Alexis Sheehan, Kristen Vaccaro, Jacqueline McClearly, Margaret Viola, Kathy Breen, Menaka Sampath, Amanda Bienz, Erin Carrier, Imani Palmer, Megan Davis, Kjell Hanson, Chris and Becca Schumann-Cervantes, Kazem and Maggie Alidoost, Tony and Jasmine Navar-Lathers, and Steve, Sharon, and Lynn from Living Yoga Center.
+If not for Dr.~Brian Shah, who reconstructed my jaw after my second year of graduate school (with Drs.~Iwei Huang, Madan Kandula, and Thomas Smithy contributing to this multi-year process), it seems unlikely that I would have entered my third year of graduate school.
+Finally, I thank my partner, Michael Kruepke, and our sweet cat, Alice, for everything.
+\end{acknowledgments}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TABLE OF CONTENTS
+%
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% INSERT REAL CONTENT HERE
+%
+\mainmatter
+
+\chapter{Introduction}
+\label{chapter:introduction}
+\input{introduction}
+
+\chapter{Background}
+\label{chapter:background}
+{\em This chapter contains background material referenced throughout this dissertation.
+Sections~\ref{sec:background-tree}--\ref{sec:background-supertrees} introduce phylogenies as graph-theoretic objects, providing the relevant notation and terminology.
+Concepts from evolutionary genomic biology are presented in Sections~\ref{sec:background-trees-2}, and models of evolution are described in Sections \ref{sec:background-msc}--\ref{sec:background-gtr}.
+Gene tree estimation methods and species tree estimation methods are discussed in Section~\ref{sec:background-gmethods} and \ref{sec:background-smethods}, respectively.
+To allow readers to skip this chapter, we have indexed acronyms and terminology.
+The first time a key word appears in a chapter or in a section within Chapter~\ref{chapter:background} only, it is highlighted in blue, indicating a link to the Appendix.
+The key word is italicized in addition to being highlighted in blue when it is defined in the text.}
+\input{background}
+
+\chapter{Species Tree Estimation in the Presence of Incomplete Lineage Sorting}
+\label{chapter:include}
+{\em This chapter contains material previously published in ``To include or not to include: The Impact of Gene Filtering on Species Tree Estimation Methods'' \cite{molloy2018include}, which was joint work with T. Warnow. 
+All supplementary materials referenced in this chapter are freely available on Dryad:~\href{https://doi.org/10.5061/dryad.km24v}{doi.org/10.5061/dryad.km24v}.
+Note that plots and tables appear at the end of this chapter in Sections~\ref{sec:include-plots} and \ref{sec:include-tables}, respectively.}
+\input{include}
+
+\chapter{Divide-and-Conquer Pipelines with NJMerge}
+\label{chapter:njmerge}
+\textit{This chapter contains material previously published in ``Statistically consistent divide-and-conquer pipelines for phylogeny estimation using NJMerge'' \cite{molloy2019statistically}, which was joint work with T. Warnow.~\emph{NJMerge} is freely available on Github:~\href{https://github.com/ekmolloy/njmerge}{github.com/ekmolloy/njmerge}.
+Datasets and software commands necessary to reproduce this study are freely available on the Illinois Data Bank:~\href{https://doi.org/10.13012/B2IDB-1424746_V1}{doi.org/10.13012/B2IDB-1424746\_V1} and \href{https://doi.org/10.13012/B2IDB-0569467_V2}{doi.org/10.13012/B2IDB-0569467\_V2}.~All supplementary tables and figures referenced in this chapter are freely available at {\em Algorithms for Molecular Biology} online:~\href{https://doi.org/10.1186/s13015-019-0151-x}{doi.org/10.1186/s13015-019-0151-x}. 
+Note that plots and tables appear at the end of this chapter in Sections~\ref{sec:njmerge-plots} and \ref{sec:njmerge-tables}, respectively.}
+\input{njmerge}
+
+\chapter{Divide-and-Conquer Pipelines with TreeMerge}
+\label{chapter:treemerge}
+\textit{This chapter contains material previously published in ``TreeMerge: a new method for improving the scalability of species tree estimation methods'' \cite{molloy2019treemerge}, which was joint work with T. Warnow.
+Software commands necessary to reproduce this study are freely available on the Illinois Data Bank:~\href{https://doi.org/10.13012/B2IDB-9570561_V1}{doi.org/10.13012/B2IDB-9570561\_V1}.
+\emph{TreeMerge} is freely available on Github:~\href{https://github.com/ekmolloy/treemerge}{github.com/ekmolloy/treemerge}.
+Note that plots and tables appear at the end of this chapter in Sections~\ref{sec:treemerge-plots} and \ref{sec:treemerge-tables}, respectively.}
+\input{treemerge}
+
+
+\chapter{Species Tree Estimation in the Presence of Gene Duplication and Loss with FastMulRFS}
+\label{chapter:fastmulrfs}
+{\em This chapter contains material perviously published in ``FastMulRFS: Fast and accurate species tree estimation under generic gene duplication or loss models'' \cite{molloy2020fastmulrfs}, which was joint work with T. Warnow.
+All supplementary materials referenced in this chapter are freely available on Dryad:~\href{https://doi.org/10.1101/835553}{doi.org/10.1101/835553}.
+Datasets and software commands necessary to reproduce this study are freely available on the Illinois Data Bank: \href{https://doi.org/10.13012/B2IDB-5721322_V1}{doi.org/10.13012/B2IDB-5721322\_V1}.
+\emph{FastMulRFS} is freely available on Github:~\href{https://github.com/ekmolloy/fastmulrfs}{github.com/ekmolloy/fastmulrfs}.
+Note that plots and tables appear at the end of this chapter in Sections~\ref{sec:fastmulrfs-plots} and \ref{sec:fastmulrfs-tables}, respectively.}
+\input{fastmulrfs}
+
+
+\chapter{Conclusion}
+\label{chapter:conclusion}
+\input{conclusion}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BIBLIOGRAPHY
+%
+\bibliographystyle{IEEE_ECE}
+\bibliography{molloy-phd-dissertation-refs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIX
+%
+\appendix
+
+\printnoidxglossary[type = \acronymtype, title={LIST OF ACRONYMS}]  % \uppercase not working here!?
+\printnoidxglossary[title={LIST OF TERMS}]   % \uppercase not working here!?
+
+\backmatter
+
+\end{document}
+\endinput

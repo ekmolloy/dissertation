@@ -1,0 +1,709 @@
+\section{Phylogenetic Trees}
+\label{sec:background-tree}
+A \textit{\gls{phylogenetictree}} $T$ is a triplet $(t, S, \phi)$, where $t$ is a tree (connected acyclic graph), $S$ is a set of labels, and $\phi : L(t) \rightarrow S$ assigns each leaf of $t$ to a label in $S$.
+We require that every label in $S$ map to at least one leaf of $T$. 
+A tree $T$ is \textit{\gls{singly-labeled}} if $\phi$ is a bijection; otherwise, $T$ is \textit{\gls{multi-labeled}}.
+Phylogenetic trees are singly-labeled unless otherwise noted.
+We do not always make an explicit distinction between a phylogenetic tree $T$ and its graph $t$; for example, we typically say that ``$T$ is a tree on label set $S$'' or ``$T$ is a phylogenetic tree,'' denoting its leaf label set, leaf node set, vertex (node) set, and edge set as $S(T)$, $L(T)$, $V(T)$, and $E(T)$, respectively.
+The edges that are incident with leaves are referred to as \textit{\glspl{terminaledge}}, and the remaining edges are referred to as \textit{\glspl{internaledge}}.
+When a phylogenetic tree parameterizes a model of evolution, its edges are assigned weights.
+The phrase ``tree \textit{\gls{topology}}'' simply refers to a phylogenetic tree minus edge weights and any other model parameters.
+
+Phylogenetic trees can be either \textit{\gls{unrooted}} or \textit{\gls{rooted}}.
+In an unrooted phylogenetic tree, $t$ is undirected.
+Leaves are vertices with degree one, and all other vertices are \textit{\glspl{internalnode}}. 
+For simplicity, internal nodes are required to have degree three or greater, suppressing all internal nodes with degree two.
+In a rooted phylogenetic tree, $t$ is directed with edges oriented towards the root: a special vertex with out-degree zero (all other vertices have out-degree one).
+Leaves are vertices with in-degree zero, and all other vertices are internal nodes.
+For simplicity, internal nodes are required to have in-degree two or greater, suppressing all internal nodes with in-degree one.
+
+Given a rooted tree, we can identify ancestor-descendant relationships.
+A vertex $v$ is an ancestor of vertex $u$ (and conversely $u$ is a descendant of $v$) if there exists a directed path from $u$ to $v$.
+We say that $v$ is a common ancestor of $R \subseteq S$ if $v$ is an ancestor of every vertex in $R$; if, in addition, the path between the root and $v$ is longer than the path between the root and any other common ancestor of $R$, we say that $v$ is the \textit{\gls{MRCA}} of $R$. 
+
+An unrooted tree $T$ can be transformed into a rooted tree by picking a node to be the root and directing edges toward the root; this results in a root vertex with in-degree three or greater.
+Consequently, it is more common to root $T$ by picking an edge, sub-dividing the edge with a new vertex (the root), and directing edges toward the root; this results in a root vertex with in-degree two.
+A rooted tree can be transformed into an unrooted tree by ignoring edge directions and the root label and then suppressing the node previously designated as the root if it has degree two.
+
+Several other operations are useful when working with phylogenetic trees.
+A \textit{\gls{contraction}} operation corresponds to deleting an edge $(u,v)$ but not its endpoints from $T$ and then identifying vertices $u$ and $v$.
+We say that tree $T'$ is a contraction of $T$ if $T'$ can be obtained from $T$ through a sequence of zero or more edge contractions.
+A \textit{\gls{refinement}} operation is the reverse of an edge contraction, that is, $T$ is a refinement of $T'$ if and only if $T'$ is a contraction of $T$.
+A \textit{\gls{polytomy}} is any vertex with degree greater than three (and in-degree greater than two if $T$ is rooted).
+If at least one vertex in $T$ is a polytomy, then we say that $T$ is \textit{\gls{unresolved}}; otherwise, we say that $T$ is \textit{\gls{fullyresolved}}, as no refinements are possible.
+A \textit{\gls{restriction}} operation corresponds to deleting leaves assigned to labels in the set $S \setminus R$ from $T$ and suppressing internal nodes with degree two (and in-degree one if $T$ is rooted). 
+In this case, we say that $T$ is restricted to $R$ and denote the resulting tree $T |_R$.
+
+\section{Comparisons between Two Phylogenetic Trees}
+\label{sec:background-compare}
+We now turn to the issue of comparing two \gls{unrooted} \glspl{phylogenetictree}.
+\textit{\Gls{compatibility}} is an essential concept, originally described by Estabrook {\em et al.} \cite{estabrook1975idealized}, and we give the definition from Section 3.2.1 in \cite{warnow2017computational}.
+
+\begin{definition}[Tree Compatibility]
+\label{def:compatibility}
+Let $T$  and $T'$ be unrooted phylogenetic trees on label sets $S$ and $R \subseteq S$, respectively. 
+We say that $T$ is \emph{\gls{compatible}} with $T'$ if $T'$ is a \gls{contraction} of $T|_R$.
+\end{definition}
+
+\begin{definition}[Tree Agreement]
+\label{def:agree}
+Let $T$  and $T'$ be unrooted phylogenetic trees on label sets $S$ and $R \subseteq S$, respectively. 
+We say that $T'$ \emph{\glspl{agree}} with $T$ if $T'$ is isomorphic to $T|_R$. Otherwise, we say that $T'$ \emph{\glspl{disagree}} with $T$.
+\end{definition}
+
+If two trees agree, they are compatible, because every tree is a contraction (or a refinement) of itself.
+Compatibility can be determined for two unrooted trees in polynomial time using bipartitions.
+
+\begin{definition}[Bipartition]
+\label{def:bipartition}
+Let $T = (t, S, \phi)$ be an unrooted phylogenetic tree.
+The deletion of an edge $e$ but not its endpoints from $t$ produces two \gls{rooted} subtrees $t_A$ and $t_B$, splitting $S$ into two sets: $A  = \{ \phi(l) : l \in L(t_A) \}$ and $B = \{ \phi(l) : l \in L(t_B) \}$.
+Therefore, we say that edge $e$ induces \emph{\gls{bipartition}} $\pi(e) = A | B$.
+The set of bipartitions induced by $T$ is denoted $Bip(T) = \{ \pi(e) : e \in E(T) \}$.
+If $|A| = 1$ or $|B| = 1$, we say that $A|B$ is a \emph{trivial bipartition}; otherwise, we say that $A|B$ is a \emph{non-trivial bipartition}.
+\end{definition}
+
+There exists a bijection between $Bip(T)$ and $E(T)$ provided that $T$ has no internal nodes of degree two (as we require). 
+It easily follows that $T'$ is compatible with $T$ if and only if $Bip(T') \subseteq Bip(T |_R)$; see Section 3.2.1 in \cite{warnow2017computational} for details.
+Therefore, we can extend the concept of compatibility to bipartitions.
+
+\glsreset{compatible}
+
+\begin{definition}[Bipartition Compatibility]
+\label{def:bipartition-compatibility}
+Let $T$ be an unrooted phylogenetic tree on label set $S$, and let $\pi = A'|B'$ be a bipartition on label set $R \subseteq S$. 
+We say that bipartition $e$ is \emph{\gls{compatible}} with $T$ if there exists a bipartition $A|B \in Bip(T)$ such that $A' \subseteq A$ and $B' \subseteq B$.
+\end{definition}
+
+If two unrooted trees are not compatible, we may quantify the distance between them.
+One of the most popular metrics is the \textit{\gls{RF}} distance \cite{robinson1981comparison}.
+
+\begin{definition}[Robinson-Foulds Distance]
+\label{def:rf}
+The \emph{\gls{RF} distance} between two unrooted phylogenetic trees $T$ and $T'$ on the same label set is the minimum number of contraction and \gls{refinement} operations required to transform $T$ into a tree that is isomorphic to $T'$ or vice versa.
+\end{definition}
+\begin{theorem}[Robinson and Foulds \cite{robinson1981comparison}]
+\label{thm:rf}
+The \gls{RF} distance between two unrooted phylogenetic trees $T$ and $T'$ on the same label set is equivalent to the bipartition distance.
+\begin{align}
+\label{eq:rf}
+	RF(T, T') 
+	&= | Bip(T) \, \triangle \, Bip(T') | \\
+\label{eq:rf2}
+	&= | Bip(T) \setminus Bip(T') | + | Bip(T') \setminus Bip(T) | 
+\end{align}
+\end{theorem}
+In a \gls{fullyresolved}, unrooted tree $T$, there are $2 | L(T) | - 3$ edges, of which $|L(T)|$ are \glspl{terminaledge} and $|L(T)| - 3$ are \glspl{internaledge}.
+Two trees $T$ and $T'$ on the same label set can only differ with respect to their internal edges, which induce non-trivial bipartitions; therefore, $0 \le | Bip(T) \setminus Bip(T') | \le |L(T)| - 3$.
+A similar statement can be made regarding 
+\clearpage
+\noindent $| Bip(T') \setminus Bip(T) |$.
+It follows that the RF distance is a value between zero and $2 |L(T)| - 6$. 
+
+The RF distance is commonly used to quantify error in \textit{\glspl{simulationstudy}}, where data is simulated under a model (parameterized by a phylogenetic tree $T^*$ on $S$) and then a tree $T$ on $S$ is estimated from the simulated data.
+When computing $RF(T^*, T)$ via Equation~\ref{eq:rf2}, the first term corresponds to the number of \textit{\gls{FN}} edges (i.e., edges in the true tree that do not exist in the estimated tree), and the second term corresponds to the number of \textit{\gls{FP}} edges (i.e., edges in the estimated tree that do not exist in the true tree).
+This analysis assumes a bijection between $Bip(T)$ and $E(T)$, which is the case provided that $T$ has no \glspl{internalnode} of degree two (as we require).
+In the context of a simulation study, we typically report the normalized RF distance between the true and estimated tree:
+\begin{equation}
+	\label{eq:rf-error}
+	\frac{RF(T^*, T)}{2 |L(T)| - 6}
+\end{equation}
+This quantity is referred to as the \textit{\gls{RFerrorrate}}.
+When $T^*$ and $T$ are not fully resolved, it can be useful to report the \textit{\gls{normalizedsymmetricdifference}}:
+\begin{equation}
+	\label{eq:nsd}
+	\frac{RF(T^*, T)}{|E(T^*)| + |E(T)| - 2L(T)}
+\end{equation}
+where the denominator represents the number of internal edges in $T^*$ and $T$.
+
+Comparing trees based on their RF distance has advantages and disadvantages; see \cite{lin2012metric, kuhner2014practical} for discussion.
+Alternatively, distances between two unrooted trees can be computed using quartets in a fashion similar to Equation~\ref{eq:rf}.
+
+\begin{definition}[Quartet]
+\label{def:quartet}
+A \emph{\gls{quartet}} is an unrooted phylogenetic tree with four leaves.
+This is the smallest unrooted tree (consider that there are zero non-trivial bipartitions for $|S| = 3$ but three non-trivial bipartition for $|S|=4$).
+An unrooted tree $T$ induces a set of quartets, denoted $Q(T)$, obtained by restricting $T$ to all possible subsets of four labels.
+\end{definition}
+
+Other notable metrics for comparing two unrooted trees include the nearest neighbor interchange distance \cite{robinson1971comparison, moore1973iterative} and the matching distance \cite{lin2012metric}; also see \cite{kuhner2014practical} for more information on comparisons between phylogenetic trees.
+
+\section{Supertrees}
+\label{sec:background-supertrees}
+\glsreset{compatibility}
+\glsreset{compatible}
+Suppose we have a set of \glspl{phylogenetictree} from different \gls{phylogenomic} studies, so these trees are on different sets of species and were estimated from different genetic markers.
+Then, we may wish to combine this phylogenetic information into a single tree on the larger set of species.
+A major ongoing project with this goal is the Open Tree of Life \cite{hinchliff2015synthesis}; their efforts (e.g., \cite{redelings2017supertree}) have included the development of new \textit{\gls{supertree}} methods \cite{bininda2004phylogenetic}, a class of methods characterized by the following input/output:
+\begin{itemize}
+	\item {\bf Input:} Set $\mathcal{T}$ of phylogenetic trees
+	\item {\bf Output:} Tree $T$ on label set $S = \bigcup_{t \in \mathcal{T}} S(t)$
+\end{itemize}
+Supertree methods have been widely adopted for estimating \glspl{speciestree} under the \gls{MSC} model (although note that when all trees in $\mathcal{T}$ are on the same label set, this problem is referred to as a consensus tree problem rather than a supertree problem).
+A less popular but notable application of supertree methods is divide-and-conquer phylogeny estimation; see Section~\ref{sec:njmerge-introduction} for further discussion.
+
+Useful for understanding supertree methods is the concept of \emph{\gls{compatibility}}, which we previously defined for two trees and now extend to a set $\mathcal{T}$ of trees.
+
+\begin{definition}[Compatibility Supertree]
+\label{def:compatibility-supertree}
+Let $\mathcal{T}$ be a set of unrooted phylogenetic trees.
+We say that $\mathcal{T}$ is \emph{\gls{compatible}} if there exists an unrooted tree $T$ on label set $S = \bigcup_{t \in \mathcal{T}} S(t)$ such that $T$ is compatible with every tree in $\mathcal{T}$.
+If $T$ is minimally resolved, we say that $T$ is a \emph{\gls{compatibilitysupertree}} for $\mathcal{T}$; otherwise, we say that $T$ is a refined compatibility supertree.
+\end{definition}
+
+Determining whether a compatibility supertree exists for $\mathcal{T}$ is NP-complete for $| \mathcal{T} | > 2$, even when every tree in $\mathcal{T}$ is a \gls{quartet} \cite{bodlaender1992two, steel1992complexity}.
+While a compatibility supertree may not exist for $\mathcal{T}$, another possibility is to minimize total distance (or conversely to maximize total support) between the output tree $T$ and the input trees in $\mathcal{T}$.
+Indeed, many of the leading supertree methods are based on optimization, perhaps the most well-known of which is Matrix Representation with Parsimony \cite{ragan1992phylo-mrp}.
+
+We now define three supertree optimization problems for unrooted phylogenetic trees.
+The first problem is based on quartets.
+
+\begin{definition}[Maximum Quartet Support Supertree Problem]
+\label{def:mqss}
+Let $\mathcal{T}$ be a set of phylogenetic trees.
+If a tree $T^*$ on label set $S = \bigcup_{t \in \mathcal{T}} S(t)$ is in the set
+\begin{equation}
+	 \arg \max_T \sum_{t \in \mathcal{T}} | Q(T) \cap Q(t) |
+\end{equation}
+then we say that $T^*$ is a \emph{\gls{MQSS}} for $\mathcal{T}$.
+\end{definition}
+The MQSS problem is NP-hard \cite{jiang2001polynomial, lafond2016on}, and well-known heuristics include Quartet Puzzling \cite{strimmer1996quartet}, Quartet Max Cut \cite{snir2012quartet}, and \textit{\gls{QFM}} \cite{reaz2014accurate}.
+When the search space for $T$ is constrained by a set $\Sigma$ of \glspl{bipartition} on $S$ (i.e., a solution $T$ must also satisfy $Bip(T) \subseteq \Sigma$), the MQSS problem can be solved in polynomial time \cite{bryant2001constructing, mirarab2014astral}.
+We refer to this problem as the \textit{\gls{bipartition-constrained}} MQSS problem.
+
+The following supertree optimization problems are based on bipartitions.
+
+\begin{definition}[Maximum Bipartition Support Supertree Problem]
+Let $\mathcal{T}$ be a set of phylogenetic trees.
+If a tree $T^*$ on label set $S = \bigcup_{t \in \mathcal{T}} S(t)$ is in the set
+\begin{equation}
+	\arg \max_T \sum_{t \in \mathcal{T}}  | Bip(T |_{S(t)}) \cap Bip(t) |
+\end{equation}
+then we say that $T^*$ is a \emph{\gls{MBSS}} for $\mathcal{T}$.
+\end{definition}
+
+\begin{definition}[Robonsin-Foulds Supertree Problem]
+Let $\mathcal{T}$ be a set of phylogenetic trees.
+If a tree $T^*$ on label set $S = \bigcup_{t \in \mathcal{T}} S(t)$ is in the set
+\begin{equation}
+	\arg \min_T \sum_{t \in \mathcal{T}} RF(T |_{S(t)}, t) = \arg \min_T \sum_{t \in \mathcal{T}} | Bip(T |_{S(t)}) \, \triangle \, Bip(t) |
+\end{equation}
+then we say that $T^*$ is a \emph{\gls{RFS}} for $\mathcal{T}$.
+\end{definition}
+The RFS problem is NP-hard \cite{bansal2010robinson}, and MulRF \cite{chaudhary2013inferring, chaudhary2014mulrf} is a well-known heuristic.
+When $T$ is required to be fully resolved, $T$ is a solution to the RFS problem if and only if $T$ is a solution to the MBSS problem.
+This is easy to see because
+\begin{align}
+	 RF(T |_{S(t)}, t) 
+	 &= |E(T |_{S(t)})| + |E(t)| - | Bip(T |_{S(t)}) \cap Bip(t) | \\
+	 &= \big( 2 |S(t)| - 3 \big) + |E(t)| - | Bip(T |_{S(t)}) \cap Bip(t) | \label{eq:idk}
+\end{align}
+implies that a solution $T$ maximizes the third term of Equation~\ref{eq:idk}.
+The bipartition-constrained version of the MBSS problem can be solved in polynomial time \cite{vachaspati2015fastrfs}.
+
+Although not discussed, there are many other (types of) supertree methods; see \cite{bininda2004phylogenetic, warnow2018supertree, brinkmeyer2001polynomial} for an entry into this literature.
+
+\section{Species Trees and Gene Trees}
+\label{sec:background-trees-2}
+In Sections~\ref{sec:background-tree}--\ref{sec:background-supertrees}, we describe \glspl{phylogenetictree} as graph-theoretic objects, and from this perspective, there is no difference between a gene tree and a species tree. 
+However, the interpretation of these two types of trees is quite different.
+
+\subsection{Gene Tree}
+\label{sec:background-gene}
+\glsreset{genetree}
+A \textit{\gls{genetree}} represents how a set of DNA sequences evolved from the same DNA sequence through a branching process (note that each DNA sequence is a contiguous region of an individual's genome).
+Going forward in time, the DNA sequence at the root is passed down as a single hereditary unit from individual to individual until it is inherited by the set of individuals whose DNA sequences are labeling the leaves.
+This unit of heredity (referred to as a \textit{\gls{gene}}) can range from a single nucleotide ($A$, $C$, $G$, or $T$) to several thousand nucleotides.
+Because mutations can occur as the gene is passed down, there can be different variants of the same gene (referred to as \textit{\glspl{allele}}). 
+The ancestry of two alleles can be traced backward in time, and when these \textit{\glspl{lineage}} trace back to the same ancestor becoming a single lineage, we say that they have \textit{\glspl{coalesce}}.
+In summary, each leaf in the gene tree represents an allele, and each \gls{internalnode} represents a \textit{\gls{coalescentevent}}.
+
+A gene, as defined above, is also referred to as a coalescent gene or c-gene \cite{springer2016gene}.
+It is worth noting that the term gene can also refer to a contiguous region of the genome that codes a protein (although we do not use this definition).
+In fact, gene trees are estimated from many different types of genetic markers, including \textit{\glspl{exon}} (coding regions of the genome),  \textit{\glspl{intron}} (non-coding regions that lie in between exons), and \textit{\glspl{UCE}}~\cite{bejerano2004ultraconserved, faircloth2017identifying}.
+
+The distinction of genes as units of heredity is important, as genomes (belonging to different individuals) can recombine through various biological mechanisms~\cite{posada2002recombination}, including sexual reproduction (the genomes of two individuals recombine to form the genome of their offspring).
+Suppose that a contiguous coding region of a genome has two sections, one inherited from each parent.
+This region does not constitute a gene, based on our definition.
+Indeed, our definition of a gene tree implies no \textit{\gls{recombination}} (note that the ancestry of a DNA sequence impacted by recombination is represented by an ancestral recombination graph~\cite{griffiths1996ancestral}).
+Recombination can also occur in organisms that reproduce asexually; for example, DNA can be exchanged between bacteria \cite{posada2001intraspecific, gogarten2005horizontal, boto2009horizontal} or viruses \cite{perezlosado2015recombination}.
+The transfer of genetic material from a donor to recipient is referred to as \textit{\gls{HGT}}, whereas the transfer of genetic material from parent to offspring is referred to as vertical gene transfer.
+
+\subsection{Species Tree}
+\label{sec:background-species}
+\glsreset{speciestree}
+\glsreset{speciationevent}
+To form a \gls{genetree}, the ancestry of \glspl{allele} is traced backward in time to a common ancestor. 
+The pool of potential ancestors for an allele is dictated by the \textit{\gls{speciestree}}.
+The branches of the species tree represent populations of individuals and thus a population of alleles over time.
+For organisms that reproduce sexually, branching events indicate a population splitting into two or more populations that are (reproductively) isolated from each other.
+\Glspl{internalnode} in the species tree are referred to as  \textit{\glspl{speciationevent}}, and leaves, which represents a population of individuals, are referred to as species.
+The precise definition of a species is complicated, and indeed, species delimitation (i.e., determining whether different populations constitute different species) is an active subject of research \cite{wiens2007species, omeara2009new, solis2015bayesian, rabiee2019soda}.
+We refer the interested reader to \cite{avise1997phylogenetics} for further discussion.
+
+\subsection{Gene Tree Discordance}
+\label{sec:background-discordance}
+Although \glspl{genetree} evolve within a \gls{speciestree}, this does not imply that these trees will be \gls{compatible}.
+When gene trees differ from each other and from the species tree, we say that there is gene tree discordance or \textit{\gls{genetreeheterogeneity}}.
+We focus on heterogeneity that results from gene genealogical relationships or from gene duplication and loss; both of these processes are modeled by species trees.
+It is worth noting that heterogeneity can also result from biological processes, such as \gls{HGT}, that are modeled by a species network \cite{nakhleh2011evolutionary, huson2010phylogenetic}.
+
+\section{Models of Evolution}
+\label{sec:background-model}
+In this section, we describe several models where \glspl{genetree} evolve within a \gls{speciestree}; we also provide an overview of standard models of DNA  evolution.
+
+\subsection{Multi-Species Coalescent Model}
+\label{sec:background-msc}
+\glsreset{MSC}
+\glsreset{ILS}
+The evolution of \glspl{genetree} (gene genealogies) within a \gls{speciestree} is modeled by the \textit{\gls{MSC}} \cite{tajima1983evolutionary, pamilo1988relationships, rosenberg2002probability, rannala2003bayes}.
+This model is parameterized by $(T, \Theta)$, where $T$ is a \gls{rooted} species tree and $\Theta$ is a set of numerical values.
+The set $\Theta$ includes the number of generations of each branch, the \textit{\gls{EPS}} on each branch (which is constant across all generations on the branch), and the EPS above the root (which is constant across all generations above the root).
+Note that the EPS is simply the number of alleles in a population; for diploid organisms, this is twice the number of individuals in a population, as each individual has two copies of each chromosome.
+The MSC model defines a generative process where gene trees evolve \textit{\gls{iid}} within the species tree. 
+For each gene, an \gls{allele} is sampled for each species at the leaves, and then the \gls{lineage} for each allele grows backward in time (generations) until all lineages  have coalesced, forming a rooted, \gls{fullyresolved} gene tree.
+
+We now describe this process for an MSC model species tree given by the \textit{\gls{newick}} string $((A,B):\tau,C)$.
+This Newick string indicates a rooted tree on species set $\{A, B, C\}$, where $A$ and $B$ are made siblings and then their least common ancestor $(A,B)$ and $C$ are made siblings; there is one internal edge in this tree with length $\tau$.
+Note that $\tau$ is in \textit{\glspl{coalescentunit}} (number of generations divided by EPS).
+For more information on interpreting Newick strings, see Sections 2.2.1 and 2.3.1 of \cite{warnow2017computational}.
+
+For each of the three species, we select an allele (denoted $a$, $b$, $c$) at random, and then the lineage for each allele grows backward in time.
+There is only one lineage on each branch of the species tree terminal to the leaves, so it is not possible for any of the lineages to \gls{coalesce}.
+On the branch above the \gls{internalnode} joining $A$ and $B$, lineages $a$ and $b$ enter the same population and have the opportunity to coalesce.
+
+Under the \textit{\Gls{coalescent}} model proposed by Kingman \cite{kingman1982on}, \glspl{coalescentevent} follow a Poisson process, and the waiting time until the next coalescent event is a random variable drawn from an exponential distribution with rate parameter
+\begin{equation}
+	\frac{i (i-1)}{2 N_e}
+\end{equation}
+where $N_e$ is the EPS and $i$ is the number of lineages and  at the previous coalescent event.
+At the next event, any pair of lineages can coalesce, with equal probability.
+This implies a constant and sufficiently large population size, non-overlapping generations, random mating, and no selection; see \cite{wakley2009coalescent} for discussion.
+
+Because the coalescent process is terminated at the end of the branch, possibly before all lineages coalesce, each branch of the species tree is modeled under the \textit{\gls{censoredcoalescent}}~\cite{rannala2003bayes}.  
+The probability that $i$ lineages coalesce into $j$ lineages after $t$ generations, each with an effective population size $N_e$, is
+\begin{equation}
+	\label{eq:prob}
+	g_{i,j}(t, N_e) = \sum_{k=j}^i e^{-\frac{k(k-1)t}{2N_e}} \frac{(2k-1)(-1)^{k-j}}{j!(k-j)!(j+k-1)} \prod_{m=0}^{k-1} \frac{(j + m)(i-m)}{i + m} 
+\end{equation}
+where $1 \le j \le i$ \cite{tavare1984line, allman2011identifying}.
+Using Equation~\ref{eq:prob}, we can compute the probability that $i$ lineages enter and $j$ lineages exit a branch of the species tree.
+
+Returning to our example, the probability that lineages $a$ and $b$ coalesce on the branch above the internal node joining $A$ and $B$ equals $g_{2,1} = 1 - e^{-\tau}$.
+The probability that $a$ and $b$ fail to coalesce equals $g_{2,2} = e^{-\tau}$.
+If $a$ and $b$ fail to coalesce on this branch, then all three lineages enter the population above the root, at this point any pair of the three lineages coalesce with equal probability.
+The number of generations above the root goes to infinity,  so all lineages entering the root will coalesce into a single lineage.
+Based on this analysis, it is easy to compute the probability of the three possible rooted, fully resolved gene trees on $\{ a, b, c \}$ under the MSC model:
+\begin{align}
+	P( ab | T, \Theta) &= 1 - \frac{2}{3} e^{ -\tau} \quad \text{ and } \quad P(ac | T, \Theta) = P(bc | T, \Theta) = \frac{1}{3} e^{ -\tau} \label{eq:noanom}
+\end{align}
+where $ab$ indicates that $a$ and $b$ are siblings in the rooted gene tree (note that the leaves of a gene tree are typically relabeled by species in the natural way).
+
+\paragraph{Anomaly zone:} 
+The MSC model species tree defines a probability distribution on the space of rooted gene trees. 
+When the most probable rooted gene tree disagrees with the rooted species tree, we say that the species tree is in the \textit{\gls{anomalyzone}} \cite{degnan2006discordance}.
+Similar statements can be made about \gls{unrooted} gene trees and unrooted species trees \cite{degnan2013anomalous}.
+Notably, there is no anomaly zone for unrooted trees on four species \cite{allman2011identifying} or rooted trees on three species \cite{degnan2006discordance, degnan2009gene}; also see Equation~\ref{eq:noanom}.
+
+\paragraph{Incomplete lineage sorting:} 
+\textit{\Gls{ILS}} occurs when a gene tree differs from the species tree.
+As shown in Equation~\ref{eq:prob}, ILS is more likely when the length (coalescent units) of the internal branch is short.
+This makes sense as the lineages entering the branch are less likely to coalesce into a single lineage when the EPS is very large and/or when the number of generations is very small.
+The level of ILS can be quantified for datasets simulated under the MSC model as the average normalized \gls{RF} distance (Equation~\ref{eq:rf}) between the model species tree and the simulated gene trees; we refer to this value as the \textit{\gls{AD}}.
+
+\subsection{Probabilistic Model of Gene Duplication and Loss}
+\label{sec:background-gdl}
+\glsreset{GDL}
+\glsreset{multi-copy}
+The  probabilistic  model proposed by Arvestad {\em et al.} \cite{arvestad2003bayesian} allows genes to be duplicated and lost but ignores ILS.
+It is parameterized by $(T, \Theta)$, where $T$ is a \gls{rooted}, \gls{fullyresolved} \gls{speciestree} and $\Theta$ is a set of numerical values.
+The set $\Theta$ includes the length of each branch in generations and two additional parameters: the duplication rate $\lambda$ and the loss rate $\mu$, both in the number of events per \gls{allele} (in the population) per generation.
+The \textit{\gls{GDL}} model defines a generative process where \glspl{genetree} evolve \textit{\gls{iid}} within the species tree. 
+For each gene, an allele is placed at the root of the species tree, and then the \gls{lineage} for that allele grows forward in time (generations).
+
+On each branch of the species tree, alleles have the opportunity to be duplicated or lost.
+A duplication causes the lineage for the affected allele to bifurcate; this bifurcation represents a \textit{\gls{duplicationevent}} in the gene tree.
+In contrast, a \textit{\gls{lossevent}} removes the affected allele from the population.
+Under the Birth-Death model \cite{kendall1948on, nee1994reconstructed}, the waiting time until the next event (either a duplication or a loss) is a random variable drawn from an exponential distribution with rate parameter
+\begin{equation}
+	i \times (\lambda + \mu)
+\end{equation}
+where $i$ is the number of alleles in the population at the last event.
+In the next event, any of the $i$ alleles can be impacted (either duplicated or lost) with equal probability.
+The probability that the next event is a duplication or loss equals $\lambda/(\lambda + \mu)$ or $\mu/(\lambda + \mu)$, respectively.
+
+When a lineage reaches an \gls{internalnode} in the species tree it bifurcates, so that it can descend down both the left and right branches below the internal node; this bifurcation represents a \gls{coalescentevent} in the gene tree.
+Because each coalescent event in the gene tree corresponds to a \gls{speciationevent} in the species tree, \gls{ILS} is prohibited under this model.
+This process continues until all lineages reach the leaves of the species tree (these lineages are labeled according to the leaves of the species tree) or have been lost (these lineages are pruned from the gene tree).
+The result is a \gls{multi-labeled} gene tree, typically referred to as a \textit{\gls{multi-copy}} gene tree, \textit{\gls{MUL-tree}}, or \textit{\gls{genefamily}} tree.
+
+\paragraph{Paralogs and orthologs:}
+We say that two alleles are \textit{\gls{paralogous}} if their \gls{MRCA} represents a duplication event; if their MRCA represents a speciation event, we say that the two alleles are \textit{\gls{orthologous}}.
+A set of alleles is orthologous if every pair of alleles in the set are orthologous. 
+
+\subsection{A Unified Model of Duplication, Loss and Coalescence (DLCoal)}
+\label{sec:background-dlcoal}
+\glsreset{DLCoal}
+The probabilistic \gls{GDL} model proposed by Arvestad {\em et al.} \cite{arvestad2003bayesian} ignores population-level effects, such as \gls{ILS}.
+Rasmussen and Kellis \cite{rasmussen2012unified} seek to address this in a unified model of \textit{\gls{DLCoal}}.
+
+\paragraph{Mutations in a population:} 
+When a mutation arises at a particular \gls{locus}, \glspl{allele} at this locus have two variants: mutant or non-mutant.
+Initially, the allele frequency of the mutant variant is $1/(2 N)$, where $N$ is the number of diploid individuals in the population at the time of the mutation.
+Changes in allele frequency will occur as the mutant and non-mutant variants are inherited by future generations via random sampling; this is referred to as genetic drift.
+
+Under the \textit{\gls{WF}} \cite{wakley2009coalescent} model, genetic drift is governed by a forward-time 
+\clearpage
+\noindent  Markov chain with a discrete state space representing the number of alleles with the mutant variant in the population.
+Let $i$ be the number of alleles with the mutant variant in the current generation.
+Then, the number of alleles with the mutant variant in the next generation is a random variable drawn from a binomial distribution, where the number of trials is $2N$ and the probability of success is $i/(2N)$.
+In other words, the next generation of alleles is created by binomial sampling alleles in the current generation with replacement.
+If over time, all alleles in a population correspond to the mutant variant, we say that the mutant variant has fixed.
+As the number of generations goes to infinity, the probability that the mutant variant fixes goes to $i / (2N)$ \cite{wakley2009coalescent}.
+Therefore, if mutations occur at a particular locus with rate $\mu$ (number of events per allele in the population per generation), the probability that the mutation occurs at a particular locus and then the mutant variant fixes is
+\begin{equation}
+	\mu 2 N \times \frac{1}{2 N} = \mu
+\end{equation}
+as the number of generations goes to infinity.
+This implies no new mutations (which alter allele frequency) at the locus, no recombination at the locus, a constant \gls{EPS} ($2N$ alleles in each generation), non-overlapping generations, random mating, and no selection; see \cite{wakley2009coalescent} for discussion.
+Many of the assumptions made by WF model also are made by the \Gls{coalescent} model.
+In fact, these two models are related: the Coalescent model can be viewed as an approximation to the WF model for large populations (so that there is at most one \gls{coalescentevent} per generation \cite{tataru2016statistical}).
+
+\paragraph{Duplication and loss in a population:} 
+Rasmussen and Kellis \cite{rasmussen2012unified} consider duplications and losses as mutations occurring in a population of diploid individuals.
+When an allele is lost from the genome of an individual, the loss occurs at a particular locus.
+Therefore, the population of alleles at this locus now have two variants: either the loss is ``present,'' or it is ``absent.''
+When an allele is duplicated in the genome of an individual, a copy of the allele appears at a different locus.
+Therefore, the mother locus continues to have one variant, but the daughter locus has two variants: either the duplication is ``present,'' or it is ``absent.''
+If the mother and daughter loci are unlinked, that is, they evolve independently, then the two loci should be modeled separately with identical parameters (number of generations and EPS) under the WF model (if going forward in time) or the Coalescent model (if going backward in time).
+
+For simplicity, suppose that the duplication-present variant fixes, and then we sample two alleles at random from the population  and trace their \glspl{lineage} backward in time.
+\begin{itemize}
+	\item If two alleles are sampled from the daughter locus, their lineages are in a common population and may \gls{coalesce}; in fact, they must coalesce before (more recently than) the \gls{duplicationevent}.
+	\item If two alleles are sampled from the mother locus, their lineages are in a common population and may coalesce.
+	\item If one allele is sampled from the mother locus and one allele is sampled from the daughter locus, their lineages are in separate populations until the time of the duplication event, at which point they enter a common population and may coalesce.
+\end{itemize}
+To deal with these different scenarios, Rasmussen and Kellis \cite{rasmussen2012unified} suggest that \glspl{genetree} evolve within a \textit{\gls{locustree}}.
+This is the basis for the \textit{\gls{MLC}} model \cite{rasmussen2012unified}.
+An MLC model locus tree is similar to an MSC model \gls{speciestree}, but \glspl{internalnode} correspond to either \glspl{speciationevent} or duplication events.
+In the former case, the descending branches are modeled by the \gls{censoredcoalescent}; in the latter case, one descending branch (the mother locus) is modeled by the censored coalescent and the other descending branch (the daughter locus) is modeled by the bounded coalescent \cite{rasmussen2012unified}.
+The MLC model makes several assumptions, including that duplications and losses (either the present or the absent variants) are fixed at the leaves of the locus tree.
+Rasmussen and Kellis \cite{rasmussen2012unified} use this assumption to justify a model (referred to as the DLCoal model) in which gene trees evolve within a species tree in two separate phases.
+
+The DLCoal model is parameterized by $(T, \Theta)$, where $T$ is a \gls{rooted}, \gls{fullyresolved} species tree and $\Theta$ is a set of numerical values.
+The set $\Theta$ includes all numerical parameters for the MSC model as well as a duplication rate and loss rate for the GDL model.
+In the first phase, a locus tree evolves within the species tree under the GDL model proposed by Arvestad {\em et al.} \cite{arvestad2003bayesian}, after which the branches of the locus tree are relabeled based on branches of the species tree in the natural way.
+In the second phase, a gene tree evolves within the locus tree under the MLC model.
+This process results in a collection of paired locus trees and gene trees.
+The locus trees differ from the species tree due to GDL only, a locus tree differs from its gene tree due to ILS only, and the gene trees differ from the species tree due to both GDL and ILS.
+Therefore, the level of ILS in simulated datasets can be quantified by averaging normalized \gls{RF} distance (Equation~\ref{eq:rf}) between every locus tree and its corresponding gene tree, both with leaves labeled by alleles rather than species (so that the two trees are \gls{singly-labeled}).
+
+\subsection{Models of DNA Evolution}
+\label{sec:background-gtr}
+\glsreset{GTR}
+\glsreset{JC}
+\glsreset{SRH}
+In Sections~\ref{sec:background-msc}--\ref{sec:background-dlcoal}, we discuss models where \glspl{genetree} evolve within a \gls{speciestree}; however, mutations (e.g., insertions, deletions, and substitutions) can accumulate in \glspl{gene} over time.
+In fact, mutations are essential for reconstructing gene trees from DNA sequences.
+
+DNA evolution is typically modeled as a Markov process with state space $\mathcal{A} = \{A, C, G, T\}$ and parameters $(T, \Theta)$, where $T$ is a \gls{rooted} gene tree and $\Theta$ is a set of numerical values.
+The set $\Theta$ includes the probability distribution $\vec{\pi}$ of states at the root as well as parameters for computing the probability transition matrix $P$ on each branch.
+The probability transition matrix is $P$ where $P_{i,j}(e)$ is the probability that state $i$ transitions to state $j$ on branch $t$.
+In this section, the term transition refers to a substitution event changing state $i$ into state $j$, where $i,j \in \mathcal{A}$ such that $i \ne j$ (note that this differs from the meaning of the term in Chapter~\ref{chapter:introduction}).
+
+Such models define a generative process where sites evolve  down the gene tree. 
+For each \gls{site}, a random character state $i \in \mathcal{A}$ is drawn from $\vec{\pi}$ and is placed at the root of the gene tree.
+This can be achieved by using $\vec{\pi}$ to partition the interval $[0,1]$ into four sub-intervals (each representing a different state) and then generating a random number between zero and one; the interval in which the random number lands determines the state at the root \cite{rambaut1997seqgen}.
+This process is repeated at each child of the root except that the character state is drawn from the probability distribution given by the $i^{th}$ row of $P(e)$, which is the probability distribution for a chain in state $i$ transitioning on branch $e$.
+Continuing in this fashion, character states are generated at each node in a preorder traversal, producing a site pattern.
+
+\paragraph{No Common Mechanism model:}
+Under the \textit{\gls{NCM}} model of Tuffley and Steel \cite{tuffley1997links}, each site and edge is allowed to have its own transition probability matrix. 
+This model parameterized by $(T, \Theta)$, where $T$ is a rooted phylogenetic tree and $\Theta$ is a set of numerical parameters.
+The set $\Theta$ includes the probability distribution of states at the root
+\begin{equation}
+	\vec{\pi} = 
+	\begin{bmatrix}
+		1/4 & 1/4 & 1/4 & 1/4
+	\end{bmatrix}
+\end{equation}
+and the probability transition matrix for each branch and site
+\begin{equation}
+P_{i,j}(e,s) =
+\begin{cases}
+    1 - p(e,s) & \quad \text{if $i=j$}\\
+    p(e,s) / 3  & \quad \text{if $i \ne j$}
+  \end{cases}
+\end{equation}
+where $0 \le p(e,s) \le 3/4$ denotes the probability that a substitution occurs on branch $e$ for site $s$.
+Note that sites are not identically distributed under the NCM model!
+
+\paragraph{Stationary, Reversible, and Homogenous Markov models:}
+\textit{\Gls{SRH}} Markov models are parameterized by $(T, \Theta)$, where $T$ is a \gls{rooted} gene tree and $\Theta$ is a set of numerical values.
+The set $\Theta$ includes branch lengths (expected number of substitutions per site), the probability distribution $\vec{\pi}$ of states at the root, and the {\em relative} instantaneous transition rate matrix $Q$ (e.g., $Q_{A,C} = 1/4$ and $Q_{A,T} = 1/2$ means that $A$ transitions to $T$ at twice the rate that $A$ transitions to $C$).
+The probability transition matrix for each branch is 
+\begin{equation}
+	P(t) = exp(Q t)
+\end{equation}
+where $exp$ denotes the matrix exponential of $Qt$ and $t$ denotes the length of the branch (expected number of substitutions per site).
+Lastly, unlike the NCM model, sites evolve {\em i.i.d.}~down the gene tree.
+
+We now summarize the constraints on $Q$ and $\vec{\pi}$ under the the \textit{\gls{GTR}} model \cite{tavare1986some}, which as its name suggests is the most general of the SRH Markov models, referring the interested reader to Section 1.5 of \cite{yang2006computational} for a more thorough discussion.
+First, as $\vec{\pi}$ is a probability distribution,
+\begin{equation}
+	\label{eq:pi}
+	\sum_{i \in \mathcal{A}} \pi_i = 1 \text{ and } \pi_i \ge 0
+\end{equation}
+for all $i \in \mathcal{A}$. 
+Second, as $Q$ is an instantaneous transition rate matrix, its off-diagonal entries are required to be non-negative and its rows are required to sum to one; this gives the constraint:
+\begin{equation}
+	\label{eq:chainout}
+	-Q_{i,i} = \sum_{j, \in \mathcal{A}, i \ne j} Q_{i,j}
+\end{equation}
+Third, for a Markov process to be homogenous, $Q$ must not depend on time.
+Fourth, for a Markov process to be stationary, $\vec{\pi}$ (the probability distribution of states at the root) also must be the probability distribution of states after time $t$; this property holds when
+\begin{equation}
+	\label{eq:stationary}
+	\pi_i Q_{i,i} = \sum_{j \in \mathcal{A}, j \ne i} \pi_j Q_{j,i}
+\end{equation}
+because the probability that a chain ``exits'' state $i$ (left term) equals the probability that a chain ``enters'' state $i$ (right term).
+Lastly, for a Markov process to be time reversible, the probability that state $i$ transitions to state $j$ must equal the probability that state $j$ transitions to state $i$; this property holds when
+\begin{equation}
+	\label{eq:reversible}
+	\pi_i Q_{i,j}  = \pi_j Q_{j,i}
+\end{equation}
+for all $i, j \in \mathcal{A}$ such that $i \ne j$.
+
+By Equations~\ref{eq:chainout}--\ref{eq:reversible}, $Q$ must have the form
+\begin{equation}
+	Q = 
+	\begin{bmatrix}
+		* &  a \cdot \pi_C  & b \cdot \pi_G & c \cdot \pi_T\\
+		a \cdot \pi_A & * & d \cdot \pi_G & e \cdot \pi_T \\
+		b \cdot \pi_A & d \cdot \pi_C  & * & f \cdot \pi_T \\
+		c \cdot \pi_A & e \cdot \pi_C  & f \cdot \pi_G & * \\
+	\end{bmatrix}
+\end{equation}
+where the diagonal entries are given by Equation~\ref{eq:chainout}.
+Recall that the entries of $Q$ define relative instantaneous transition rates and the branch lengths define the expected number of substitutions per site (rather than time).
+This can be achieved by setting $f = 1$ and scaling $Q$ so that the mean mutation rate (expected number of substitutions per unit time per site)
+\begin{equation}
+	\mu = \sum_{i \in \mathcal{A}} \pi_i \sum_{j \in \mathcal{A}, i \ne j} Q_{i,j} = - \sum_{i \in \mathcal{A}} \pi_i Q_{i,i}
+\end{equation}
+equals one \cite{yang2006computational}.
+% See page 35 (52 in PDF) of Yang!
+
+Other SRH models, including the \textit{\gls{JC}} model \cite{jukes1969evolution}, place additional restrictions on $Q$ and/or $\vec{\pi}$ and therefore are sub-models of the GTR model.
+SRH models are sub-models of the \textit{\gls{GM}} model \cite{steel1994recovering2}, which does not require stationarity.
+
+\paragraph{Rate heterogeneity across sites:} 
+Under SRH Markov models, all sites evolve at the same rate; however, these models can be extended to allow \textit{\gls{rateheterogeneityacrosssites}} simply by scaling the branch lengths of the SRH model tree for each site. 
+For example,  a constant $c$ is drawn from a distribution, each branch in the model tree is multiplied by $c$, and then a single site evolves down the re-scaled GTR model tree; this process is repeated for each site.  
+The most popular of the rate heterogeneity models is the \textit{\gls{GTR+GAMMA}}  model \cite{yang1994maximum, yang1996among}, where the scaling factor $c$ is drawn from a continuous gamma distribution with shape parameter $\alpha$ and scale parameter $\beta = \alpha$, so small and large values of $\alpha$ correspond to high and low variation in the rates across sites, respectively.
+The \textit{\gls{GTR+CAT}} model \cite{yang1994maximum} is a discretized version of the GTR+GAMMA model; specifically, the gamma distribution is discretized into a fixed number of categories, and sites must evolve within a rate in one of these categories.
+
+\paragraph{Molecular clock:}
+When the \textit{\gls{evolutionarydistance}} (expected number of substitutions per site) between the root and each leaf is the same for all leaves, we say that the SRH model gene tree obeys the \textit{\gls{strictmolecularclock}} \cite{ho2008molecular}.
+By modifying branch lengths, we can generate sequences under SRH models that violate or relax the molecular clock assumption.
+Under one of the relaxed molecular clock models proposed by Drummond {\em et al.} \cite{drummond2006relaxed}, each branch length is modified by a random variable drawn from a log-normal distribution.
+Alternatively, branches could be modified to allow for systematic differences, for example the evolutionary rate can vary across different species as ``smaller-bodied species of vertebrates with faster metabolic rates have higher substitution rates than larger-bodied species'' \cite{bromham2003modern}.
+
+\section{Gene Tree Estimation}
+\label{sec:background-gmethods}
+\glsreset{ML}
+\glsreset{restriction}
+{\em This section contains material previously published in ``Large-scale Species Tree Estimation'' \cite{molloy2020large}, which was joint work with T. Warnow.}
+
+\vspace{12pt}
+
+We now provide a brief overview of methods for estimating gene trees under \gls{SRH} Markov models of DNA evolution.
+Such methods take an \gls{MSA} with $n$ rows (DNA sequences) and $L$ columns (\glspl{site}) as input and return an \gls{unrooted} tree with leaves bijectively labeled by the input DNA sequences (rows in the input MSA).
+
+\subsection{Maximum likelihood Methods} 
+A popular approach is to search for the model tree (topology and numerical parameters) that maximizes the likelihood of observing the input data under a particular model of evolution \cite{felsenstein1981evolutionary}.
+\textit{\Gls{ML}} is \gls{statisticallyconsistent} under the \gls{GTR} model even when the \gls{MSA} has \glspl{gap}, which are treated as missing data \cite{truszkowski2016maximum} (although this assumes the MSA is error-free).
+However, finding the ML tree is an NP-hard optimization problem \cite{roch2006short}, so methods use heuristics to search \gls{treespace}, computing the log-likelihood of each candidate tree.
+One of the most popular methods, \textit{\gls{RAxML}} \cite{stamatakis2014raxml8} uses pthreads, vector extensions (SSE3, AVX and AVX2), and other techniques to reduce the amount of time required to compute tree log-likelihood.
+While such optimizations are critical (especially when there are many unique site patterns in the MSA), they do not impact the number of candidate trees evaluated during the tree search.
+The number of candidate trees evaluated before the search converges (to a local optimum) is unbounded; therefore, we cannot provide a worst case running time analysis.
+Several other heuristics for ML tree estimation have been developed, including IQTree \cite{nguyen2015iqtree}, \textit{\gls{FastTree-2}}  \cite{price2010fasttree2}, and PhyML \cite{guindon2010new}.
+
+\subsection{Distance Methods}
+We now extend the terminology for phylogenetic trees to \textit{\glspl{dissimilaritymatrix}} (sym-
+\clearpage
+\noindent 
+metric matrices with zeros on the diagonal and non-negative values on the off-diagonal).
+A \textit{\gls{phylogeneticdistancematrix}} $D$ is a triplet $(d, S, \theta)$, where $d$ is a dissimilarity matrix, $S$ is a set of labels, and $\theta : \{1, 2, \dots, |S| \} \rightarrow S$ assigns each row of $d$ to a label in $S$.
+We require that every label in $S$ map to at least one row of $D$.
+A phylogenetic distance matrix $D$ is \textit{\gls{singly-labeled}} if $\theta$ is a bijection; otherwise, $D$ is \textit{\gls{multi-labeled}}.
+Phylogenetic distance matrices are singly-labeled unless otherwise noted.
+We do not always make an explicit distinction between a phylogenetic distance matrix $D$ and its dissimilarity matrix $d$; for example, we typically say that ``$D$ is a dissimilarity matrix on label set $S$'' or ``$D$ is a phylogenetic distance matrix,'' denoting the entry at the $i^{th}$ row and the $j^{th}$ column as $D[i,j]$. 
+Lastly, we let $S(D)$ denote the label set of $D$ and $D|_R$ denote the dissimilarity matrix created by \textit{\glspl{restriction}} $D$ to the rows/columns with indices in the set $\{ \theta(i) \in R : i \in \{1, 2, \dots, |S| \}$.
+
+\textit{\Glspl{distancemethod}} operate by estimating the \gls{evolutionarydistance} between every pair of sequences in an \gls{MSA} and then, from the resulting phylogenetic distance matrix $D$, building a tree with leaves labeled by the set $S(D)$, for example by using the well-known \textit{\gls{NJ}} method~\cite{saitou1987neighbor}.
+Recall that an \gls{SRH} model tree $T$ has branch lengths indicating the expected number of substitutions on that edge, so the evolutionary distance between sequences $i$ and $j$ equals the path distance between leaves $i$ and $j$ in $T$.
+
+\begin{definition}[Additive and Nearly Additive]
+\label{def:nearly-additive}
+Let $T$ be a tree on label set $S$, and let $D = (d, S, \theta)$ be a phylogenetic distance matrix.
+We say that $D$ is \emph{\gls{additive}} for $T$ if every entry $D[i,j]$ is the sum of the edge weights on the path between the leaf labeled $\theta(i)$ and the leaf labeled $\theta(j)$ in $T$.
+We say that $D$ is \emph{\gls{nearlyadditive}} for $T$ if every entry $D[i,j]$ differs from the path distance between leaf labeled $\theta(i)$ and leaf labeled $\theta(j)$ in $T$ by less than half of the shortest \gls{internaledge} in $T$.
+\end{definition}
+
+\begin{theorem}[Atteson \cite{atteson1999performance}]
+\label{thm:atteson}
+NJ, when applied to a phylogenetic distance matrix that is nearly additive for $T$, returns $T$.
+\end{theorem}
+
+Evolutionary distances can be estimated by computing the fraction of \glspl{site} that differ between the two aligned sequences; however, this does not account for multiple substitutions at a site.
+Therefore, this value is typically corrected under a model of DNA sequence evolution, for example the \gls{JC} model.
+The JC-corrected distance between two aligned sequences converges to the true evolutionary distance \cite{warnow2017computational}, as the amount of data generated under the JC model goes to infinity.
+Therefore, as the amount of data generated under the JC model goes to infinity, $D$ converges to a tree that is additive for the JC model tree, and by Theorem~\ref{thm:atteson}, NJ returns the JC model tree with probability converging to one.
+It follows that this approach is \gls{statisticallyconsistent} under the JC model.
+A similar result holds for using \textit{\glspl{log-detdistance}} to estimate gene trees under the \gls{GM} model \cite{steel1994recovering}.
+
+When evolutionary distances are estimated from finite amounts of data, $D$ may not be additive, and furthermore $D$ may not satisfy the triangle inequality: $D[i,j] \le D[i,k] + D[k,j]$ for all $i, j, k \in \{ 1, 2, \dots, n \}$.
+The latter implies that $D$ is a dissimilarity matrix rather than a distance matrix.
+Nevertheless, $D$ is commonly referred to as a (phylogenetic) distance matrix.
+
+The distance methods described above run in polynomial time, for example it takes $O(n^2L)$ time to compute JC-corrected distances (or log-det distances) and $O(n^3)$ time to run NJ.
+Distance methods are typically faster than \gls{ML}  methods, and both types of method are statistically consistent under SRH models of evolution; this begs the question, why are ML methods more popular that distance methods?
+This is because sequences do not have infinite length, so differences in method performance can be observed in practice; see Chapter~\ref{chapter:njmerge} for further discussion.
+
+\subsection{Long Branch Attraction} 
+It is worth thinking about conditions under which methods may fail to recover the correct tree.
+An important example used in many theoretical and empirical studies is the \textit{\gls{felsensteinzone}} tree \cite{felsenstein1978cases}, a \gls{quartet} $A,B|C,D$ with a short edge separating $A,B$ from $C,D$, short edges incident to $A$ and $C$, and long edges incident to $B$ and $D$.
+Recall that edge lengths indicate the expected number of substitutions per site, so this tree violates the \gls{strictmolecularclock}.
+A single \gls{site} may undergo multiple substitutions on a long branch, so $B$ and $D$ may be in the same state (even a state which differs from their common ancestor) by chance.
+When $B$ and $D$ are joined as siblings in the estimated tree, we say that \textit{\gls{longbranchattraction}} has occurred.
+\textit{\Gls{maximumparsimony}} (which seeks a tree that minimizes the number of substitutions required to explain the input character data) is \gls{positivelymisleading} in the Felsenstein Zone \cite{felsenstein1978cases}.
+Although \gls{ML} and \glspl{distancemethod} are \gls{statisticallyconsistent}, this only describes their performance given infinite sites; indeed, they can fail to recover the correct tree when the number of sites is bounded \cite{roch2018long}.
+Long branch attraction can be prevented by adding more species to the dataset, so that the long branches are broken into several shorter branches; this approach, referred to as taxon sampling, was proposed by Hendy and Penny \cite{hendy1989framework}; see \cite{heath2008taxon} for a review.
+
+\subsection{Non-parametric Bootstrapping} 
+An important step in phylogenetic and \gls{phylogenomic} studies is to assign some degree of confidence to each branch in an estimated tree.
+\textit{\Gls{non-parametricbootstrapping}}, which was introduced by Felsenstein \cite{felsenstein1985confidence}, continues to be one of most popular approaches; also see \cite{efron1996bootstrap, holmes2003bootstrapping}.
+At the high level, \glspl{site} in an \gls{MSA} are sampled with replacement, a tree is estimated on each bootstrapped \gls{MSA}, and then confidence in a particular branch (\gls{bipartition}) is indicated by the percentage of bootstrapped trees that induce the same bipartition.
+An incorrect branch can have high bootstrap support when there is systematic bias (e.g., due to \gls{longbranchattraction}) or model misspecification. 
+Nevertheless, low \textit{\gls{bootstrapsupport}} values (below 50\%) are generally considered to be unreliable, whereas high bootstrap support values (above 95\%) are generally considered to be reliable \cite{swofford1996phylogenetic, warnow2017computational}.
+
+\section{Species Tree Estimation}
+\label{sec:background-smethods}
+\glsreset{concatenatedalignment}
+\glsreset{log-detdistance}
+\glsreset{multi-locusdataset}
+{\em This section contains material previously published in ``To include or not to include: The Impact of Gene Filtering on Species Tree Estimation Methods'' \cite{molloy2018include} and ``Large-scale Species Tree Estimation'' \cite{molloy2020large}, both of which were joint work with T. Warnow.}
+
+\vspace{12pt}
+
+To conclude this chapter, we describe the dominant methods for estimating \glspl{speciestree} in the presence of \gls{ILS}, focusing on worst-case running time as well as \glspl{statisticallyconsistent} under the \gls{MSC} model (note that we refer to methods that are statistically consistent under the MSC model as \textit{\glspl{coalescentmethod}}, although this term does not have an agreed upon meaning).
+These methods are executed as part of species tree estimation pipelines that begin with the assembly of a \textit{\gls{multi-locusdataset}}, containing $n$ \gls{orthologous} DNA sequences (typically one per species) for each of the $m$ \glspl{gene}.
+An \gls{MSA} is estimated for each gene, and the resulting MSAs are given as input to the approaches discussed below.
+Therefore, we are interested in whether methods are statistically consistent under the \textit{\gls{MSC+GTR}} model, where \glspl{genetree} evolve within a species tree under the MSC model, and then sites evolve down each of the gene trees under the \gls{GTR} model (note that there can be differences in assumptions between methods regarding the \gls{strictmolecularclock}, the \gls{rateheterogeneityacrosssites}, etc.).
+
+\subsection{Concatenation Analysis using Maximum Likelihood}
+\label{sec:models-caml}
+In the traditional approach to \gls{speciestree} estimation, \glspl{MSA} are combined into a single matrix, and then an \gls{ML} method is used to estimate a tree from the \gls{concatenatedalignment} under a model of DNA sequence evolution.
+This approach, referred as an unpartitioned \textit{\gls{CA-ML}}, assumes that all \glspl{site} in the concatenated alignment evolve down the model trees with the same topology (recall that branch lengths can be rescaled for each site under the \gls{GTR+GAMMA} model).
+This assumption is violated in the presence of \gls{ILS}.
+Simulations under the \gls{MSC} model have shown that CA-ML can have poor accuracy in the presence of ILS \cite{kubatko2007inconsistency}, leading to the conjecture, later proven by Roch and Steel \cite{roch2015likelihood}, that CA-ML can be \gls{statisticallyinconsistent} under the MSC model.
+In fact, Roch and Steel \cite{roch2015likelihood} show that CA-ML is \gls{positivelymisleading} for a \gls{rooted} species tree with six leaves in the \gls{anomalyzone}.
+There is no anomaly zone for \gls{unrooted} species trees with four leaves \cite{allman2011identifying}, and recently, Wascher and Kubatko \cite{wascher2015consistency} showed that CA-ML is \gls{statisticallyconsistent} under the \gls{MSC+GTR} model (with some assumptions) for unrooted species trees with four leaves.
+Notably, the proof assumes that each gene is represented by a single site in the concatenated alignment; see \cite{wascher2015consistency} for details.
+While the conditions under which CA-ML can be relied upon to provide accurate species trees are not fully understood, it continues to be a dominant approach to species tree estimation.
+
+\paragraph{Concatenation analysis using ExaML:}
+It is worth noting that ML methods can run out of memory on large datasets.
+\textit{\gls{ExaML}} \cite{kozlov2015examl}, a distributed-memory version of \gls{RAxML}, partitions and distributes the concatenated alignment across multiple processors (note that the partitioning must be across sites).
+Therefore, communication (i.e., the sending/receiving of messages between different processes) is required to compute tree log-likelihood for the {\em entire} alignment.
+For example, if the alignment was distributed across $p$ processors, then $\log(p)$ communication steps would be required to compute the log-likelihood for the entire alignment using a standard global reduction; these $\log(p)$ steps are effectively serialized work.
+Furthermore, the amount of time required for communication is significant compared to other operations, which is why avoiding communication \cite{demmel2013communication}, overlapping communication and computation  \cite{hoefler2007implementation}, and modeling communication  \cite{culler1993logp, alexandrov1995loggp, gropp2016modeling} are topics of interest for high performance computing applications.
+Unless \gls{treespace} can be navigated effectively, many rounds of communication will be required before a search converges (to a local optimum), so while ExaML is a significant advance in large-scale ML tree estimation, there are open challenges.
+
+\subsection{Bayesian Co-Estimation Methods}
+\label{sec:background-co-estimation}
+Bayesian \textit{\gls{co-estimation}} of the \gls{speciestree} and \glspl{genetree} is considered to be one of the most promising approaches for species tree estimation in the presence of \gls{ILS}.
+Examples of co-estimation methods include BEST \cite{edwards2007high,liu2008best}, *BEAST \cite{heled2010bayesian}, and StarBeast2 \cite{ogilvie2017starbeast2}. 
+Although simulation studies have demonstrated that these methods can offer substantial improvements in accuracy over other methods \cite{edwards2009is, leache2010accuracy, bayzid2013naive}, one of the most popular co-estimation methods, *BEAST, does not converge in practical amounts of time on datasets with much greater than 25 species and 100 \glspl{gene} \cite{mcCormack2009maximum, zimmermann2014bbca, leavitt2016resolving}. 
+StarBeast2 is an improved version of *BEAST that may scale to somewhat larger datasets.
+
+\subsection{Gene Tree Summary Methods}
+\label{sec:background-summary}
+A more scalable approach to \gls{speciestree} estimation operates by estimating a \gls{genetree} from each \gls{MSA} and then combining the resulting gene trees into a species tree. 
+The second step is performed using a \textit{\gls{genetreesummarymethod}}, for example STAR \cite{liu2009estimating-star}, \textit{\gls{STEM}} \cite{kubatko2009stem}, MP-EST \cite{liu2010maximum-mpest}, NJst \cite{liu2011estimating-njst},  iGLASS \cite{jewett2012iglass}, ASTRAL \cite{mirarab2014astral,mirarab2015astral2}, and ASTRID \cite{vachaspati2015astrid}.
+We now describe how the dominant summary methods operate and their worst-case running time.
+All of these methods take \gls{unrooted} $m$ gene trees, each on $n$ species, as input, unless otherwise noted.
+
+\paragraph{NJst:}
+\textit{\gls{NJst}} \cite{liu2011estimating-njst} estimates a species tree from the \textit{\gls{AGID}} matrix $D$, where $D[i,j]$ is the number of \glspl{internalnode} on the path between leaves $i$ and $j$, averaged across all gene trees.
+Technically, the average is taken over the subset of gene trees that contain both $i$ and $j$, so $D[i,j]$ is undefined when none of the gene trees contain both $i$ and $j$.
+If there are no undefined entries in $D$, a tree is built using \gls{NJ}.
+This approach runs in $O(n^2 (m + n))$ time and is \gls{statisticallyconsistent} under the \gls{MSC} model.
+The former result is easy to see as the AGID matrix can be computed in $O(m n^2)$ time and NJ runs in $O(n^3)$ time.
+The latter result follows from a proof by Allman {\em et al.} \cite{allman2018species-internode} showing that the AGID matrix converges to a matrix that is \textit{\gls{nearlyadditive}} for the species tree under the MSC model.
+
+\paragraph{ASTRID:} \textit{\gls{ASTRID}} \cite{vachaspati2015astrid} operates in a similar fashion to NJst but runs \textit{\gls{FastME}} \cite{lefort2015fastme2} instead of NJ.
+FastME seeks a tree under the \textit{\gls{BME}} criterion and runs in $O(n^2 \log n)$ time; therefore, the running time of ASTRID is $O(n^2 (m + \log{n}))$.
+It is not completely clear when NJ or BME is more accurate than the other, although prior studies suggest that BME has a slight advantage over NJ in terms of topological accuracy \cite{desper2004fast, wang2006distance, vachaspati2015astrid}.
+FastME cannot run when the dissimilarity matrix has undefined entries; in this case, ASTRID runs BioNJ* \cite{criscuolo2008fast}, a modification of NJ for matrices with missing entries.
+
+\paragraph{ASTRAL:}
+\textit{\gls{ASTRAL}} \cite{mirarab2014astral} estimates a species tree by solving the \gls{bipartition-constrained} \gls{MQSS} problem.
+The solution to this optimization problem is a statistically consistent estimate of the MSC species tree, as there is no \gls{anomalyzone} for unrooted quartets and as every bipartition in the species tree has a non-zero probability of being induced by one of the gene trees \cite{mirarab2014astral}.
+The latest version of ASTRAL, ASTRAL-III \cite{zhang2018astral3}, runs in $O( n m | \Sigma |^{1.726})$ time \cite{kanetao2017bound, zhang2018astral3}, where $\Sigma$ is the set of \glspl{bipartition} used to constrain the space of possible solutions.
+Importantly, $\Sigma$ contains (at least) all bipartitions induced by the input gene trees, so when the input gene trees are binary and identical to each other, then $| \Sigma | = n - 3$.
+On the other hand, when the input gene trees are \gls{fullyresolved} and \gls{disagree} with each other, then $| \Sigma |$ will be much larger. 
+It is possible for each of the gene trees to differ on each of their \glspl{internaledge}, so $| \Sigma | = O(nm)$.
+Because gene trees can differ from the species tree due to biological processes as well as \textit{\gls{GTEE}}, the set $\Sigma$ will typically be large for many (perhaps most) \glspl{multi-locusdataset}.
+ 
+\paragraph{MP-EST:}
+Recall that an MSC model species tree defines a probability distribution on gene trees; for example, the probability distribution defined by an MSC model tree with $n=3$ species is given by Equation~\ref{eq:prob}.
+This allows us to compute the likelihood that an MSC model species tree on $n=3$ species generated a collection of \gls{rooted} gene trees (as the frequency of each gene tree topology is an estimate of its probability).
+This concept can be extended to $n>3$ species by restricting each of the rooted gene trees to a subset of three species, storing the frequency of each gene tree topology as a vector, and repeating this process for all subsets of three species; this preprocessing step requires $O(n^3m)$ time.
+The resulting frequency vectors can be used to evaluate the likelihood of a candidate species tree restricted to any subset of three species.
+By combining the likelihood values computed for all subsets of three species into a single score, we can evaluate the pseudo-likelihood of a candidate species tree.
+\textit{\gls{MP-EST}} \cite{liu2010maximum-mpest} seeks a model species tree that maximizes this pseudo-likehood function.
+This search is initiated from a random starting tree, so several independent searches from different random starting trees should be run.
+Lastly, note that MP-EST requires rooted gene trees as input unlike the other methods discussed in this section.
+
+\paragraph{Theoretical and empirical performance of summary methods:}
+NJst, ASTRID, ASTRAL, MP-EST, and many other summary methods are statistically consistent under the MSC model and have excellent accuracy when given a sufficient number of highly accurate gene trees \cite{liu2011estimating-njst, vachaspati2015astrid, mirarab2014astral, liu2010maximum-mpest, mirarab2015astral2}. 
+Comparisons of summary methods and CA-ML on simulated datasets have suggested that summary methods are more accurate than CA-ML when ILS is sufficiently high and conversely that CA-ML is more accurate than summary methods when ILS is sufficiently low \cite{leache2010accuracy,bayzid2013naive, patel2013error, mirarab2014statistical-binning, bayzid2015weighted, chou2015comparative, mirarab2016evaluating}. 
+
+The current proofs of statistical consistency for many (if not all) summary methods assume error-free gene trees \cite{roch2015robustness}.
+This is equivalent to assuming that gene trees are estimated in a statistically consistent fashion, which in turn makes the assumption that the number of sites per gene goes to infinity.
+Recently, Roch {\em et al.} \cite{roch2018long} showed that summary methods can be \gls{positivelymisleading} when the number of sites per gene is bounded (for unrooted species trees that generate gene trees in the \gls{felsensteinzone}).
+This is problematic as \gls{recombination}-free regions of the genome are expected to be quite short for gene trees with deep \glspl{coalescentevent} \cite{springer2016gene}.
+Indeed, many simulations have shown that GTEE reduces the accuracy of summary methods \cite{bayzid2013naive, mirarab2015astral2, patel2013error, mirarab2014statistical-binning, huang2010sources, degiorgio2014robustness, lanier2015applying, xi2015genes, meiklejohn2016analysis}, suggesting that summary methods may be inappropriate when gene trees cannot be estimated with high accuracy.
+This raises potential concerns, since low \gls{bootstrapsupport} values have been reported for gene trees estimated in several \gls{phylogenomic} studies \cite{jarvis2014whole, wickett2014phylo}.
+Indeed, our analyses show mean bootstrap support values below 30\% for several published multi-locus datasets (Table~\ref{tab:include-1}), which is suggestive of high GTEE.
+
+\textit{\Gls{missingdata}} is another common challenge to species tree estimation, as many (or perhaps even most) \glspl{gene} will have some degree of missing data (i.e., missing species) if full genomes are to be utilized; see \cite{driskell2004prospects, streicher2016how, xi2016impact} for an entry into this literature.
+Nute {\em et al.} \cite{nute2018performance} recently showed that ASTRAL and MP-EST are statistically consistent under a model of random missing data, and later Rhodes {\em et al.} \cite{rhodes2020njst} showed that NJst and ASTRID can be \gls{statisticallyinconsistent} under this same model.
+While relatively little is known about the statistical consistency of summary methods under models of missing data, simulations have shown that accuracy can degrade when genes are missing species, especially when the number of genes is limited  \cite{vachaspati2015astrid, hovmoller2013effects, xi2016impact} or when missing data are biased \cite{xi2016impact}. 
+
+\subsection{Site-based Methods}
+\textit{\Glspl{site-basedmethod}}, such as SNAPP \cite{bryant2012inferring-snapp}, SVDquartets \cite{chifman2014quartet-svdquartets, chifman2015identifiability}, and METAL \cite{dasarathy2015data-metal} 
+estimate species trees from the \gls{concatenatedalignment}.
+These methods are characterized by being \gls{statisticallyconsistent} under the \gls{MSC} model (plus some model of DNA evolution) when given only one site per gene.
+Therefore, they are expected to be more accurate than \glspl{genetreesummarymethod} when \glspl{gene} have few \textit{\gls{parsimony-informative}} \glspl{site} (sites with at least two character states appearing at least twice) and thus high \gls{GTEE}. 
+
+\paragraph{SVDquartets:}
+\textit{\gls{SVDquartets}} \cite{chifman2014quartet-svdquartets, chifman2015identifiability}, for example, estimates an \gls{unrooted} \glspl{speciestree} on $n=4$ leaves from site patterns using a technique based on the \textit{\gls{SVD}}.
+This approach was recently proven to be statistically consistent under the \gls{MSC+GTR} model (with some assumptions) for the special case when there is exactly one site per gene \cite{wascher2015consistency}.
+Although one site pattern could be selected uniformly at random from each MSA in a \gls{multi-locusdataset}, Wascher and Kubatko \cite{wascher2015consistency} also provided theoretical justification for running SVDquartets on the concatenated alignment.
+
+For datasets with $n>4$, SVDquartets operates by restricting the concatenated alignment to subsets of four species and then estimates the species tree using its SVD-based technique, which scales linearly with the number of sites in the concatenated alignment.
+This produces a set of \glspl{quartet}, which can be assembled into a tree on $n$ species using heuristics for the NP-hard \gls{MQSS} problem; for example, SVDquartets, as implemented in \textit{\gls{PAUP*}} \cite{swofford-paup}, uses the \gls{QFM} algorithm.
+Although quartets can be computed in an embarrassingly parallel fashion, the computation of  $O(n^4)$ quartets is still burdensome when $n$ is large.
+Currently, the SVDquartets pipeline, as implemented in PAUP*, can be run on datasets with large $n$ by randomly sampling a subset of the possible quartets.
+While this approach has advantages in terms of running time, the accuracy of trees computed using a set of sparsely sampled quartets may be reduced compared to using the full set of quartets~\cite{swenson2011experimental}.
+
+Relatively little is known about the empirical performance (accuracy) of SVDquartets.
+A recent simulation study by Chou {\em et al.} \cite{chou2015comparative} found that summary methods (ASTRAL-II and NJst) were more accurate than SVDquartets for long genes and conversely that SVDquartets was more accurate than the summary methods under some conditions with very short genes, likely due to increased GTEE.
+Notably, SVDquartets was not more accurate than CA-ML under the conditions characterized by very short genes \cite{chou2015comparative}.
+Because the relative performance of methods can depend greatly on the simulation protocol and model conditions explored, further studies are needed to evaluate the accuracy and running time of SVDquartets.
+
+\paragraph{METAL and related methods:} 
+METAL \cite{dasarathy2015data-metal} and related methods (e.g., \cite{allman2019species-logdet}) are \glspl{distancemethod} that have been proven to be statistically consistent under the conditions described above.
+For example, Allman {\em et al.} \cite{allman2019species-logdet} showed this approach using \glspl{log-detdistance} is statistically consistent under the MSC+GTR model with some assumptions.

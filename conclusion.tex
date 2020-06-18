@@ -1,0 +1,46 @@
+\glsreset{DTM}
+\glsreset{MSC}
+\glsreset{GDL}
+\glsreset{RFS}
+\glsreset{DP}
+\glsreset{ML}
+\glsreset{GTEE}
+\glsreset{HGT}
+In this dissertation, we presented three new \gls{supertree}-like methods, \gls{NJMerge}, \gls{TreeMerge}, and \gls{FastMulRFS}, that can be used in the context of \gls{speciestree} estimation from \gls{genome-scale} datasets. 
+
+The first two methods, NJMerge and TreeMerge, deviate from traditional supertree methods by taking a set of \gls{leaf-label-disjoint} trees as input; thus we refer to these methods as \glspl{DTM}.
+This specification implies that a \gls{compatibilitysupertree} for the input trees exists---but also that the input trees provide no information on how to recover a compatibility supertree that is close to the true \gls{phylogeny}.
+As such, DTM methods require auxiliary data as input (note that they estimate the phylogeny from this data subject to the topological constraints defined by the input trees).
+Of the DTM methods, TreeMerge is particularly noteworthy, as it seeks to reduce computational and storage requirements (and improve accuracy) by exploiting locality, combining an embarrassingly parallel \gls{localmergephase} with a fast \gls{globalmergephase}.
+We explore the use of DTM methods in divide-and-conquer species tree estimation pipelines, providing proofs of \glspl{statisticallyconsistent} under the \gls{MSC} model and presenting empirical results for simulated datasets (on which the DTM-based pipelines compare favorably in terms of accuracy and running time to the dominant species tree estimation methods).
+
+The third method, FastMulRFS, deviates from traditional supertree methods by taking as input a set of \gls{multi-labeled} trees (\glspl{MUL-tree}).
+We show the input MUL-trees can be reduced to set of \gls{singly-labeled} trees prior to solving FastMulRF's optimization problem: the \gls{RFS} problem for MUL-trees.
+After applying this transformation, we then utilize a \gls{DP} technique for solving the  problem exactly within a constrained search space defined by the input. 
+We explore the use of FastMulRFS in the context of species tree estimation from gene family trees, providing proofs of statistical consistency under a generic \gls{GDL} model (provided no adversarial GDL occurs) and presenting empirical results for a fungal dataset and for simulated datasets (on which FastMulRFS compares favorably in terms of accuracy and running time to other leading methods that take MUL-trees as input).
+
+All three of these methods are combinatorial in nature and operate, at least in part, by constraining the space of allowed solutions.
+The goal is to improve scalability by constraining the solution space but to do so in such a way that good empirical properties (accuracy in simulation studies) and good theoretical properties (statistical consistency) are maintained.
+One of the major challenges is that the (relative) performance of methods and the (relative) benefit of using different techniques for improving scalability depends on the model condition.
+This requires method developers to perform extensive simulations, benchmarking methods on a wide range of model conditions.
+Even with these efforts, interpreting the results can be difficult when it is unclear which of the model conditions best reflects reality for a given dataset or for many datasets.
+This is largely an unknown, as it is still difficult to quantify ``model conditions'' in biological datasets due to model violations, estimation error (from data preprocessing), and missing data.
+These issues complicate experimental design and method development.
+
+We have outlined potential future work throughout this dissertation and now review several broad avenues for method developers.
+
+First, we have consistently identified \gls{GTEE} as a potential problem for gene tree summary methods.
+While summary methods are surprisingly robust to GTEE in simulation studies, this may not be the case in biological studies when estimation error may be systematically biased.
+Developing methods to detect estimation error, especially systematic error, and developing methods that can leverage large numbers of loci, where each locus has low phylogenetic signal, are important areas of future research.
+
+Second, we have considered theoretical guarantees under the MSC model or a generic GDL model, but not under both. 
+Multiple sources of gene tree heterogeneity can occur in practice, and examining statistical guarantees and empirical performance within such regimes is an important area of future research (e.g., \cite{markin2020quartet}). 
+In particular, it may be important to account for sources of heterogeneity, such as \gls{HGT} in bacteria and hybridization in eukaryotes, that must be modeled by a species network rather than a species tree (e.g., \cite{du2019unifying}). 
+Phylogenetic network estimation is far more computationally intensive than tree estimation \cite{nakhleh2011evolutionary}, so this is an area where method development, especially focusing on scalability to large datasets, could be highly impactful.
+
+Third, there is growing interest in estimating phylogenies under  parameter-rich statistical models (e.g., \cite{crotty2019ghost}) using \gls{ML} methods \cite{nguyen2015iqtree} or Bayesian methods (e.g., \cite{ronquist2003mrbayes, heled2010bayesian, hohna2016revbayes, ogilvie2017starbeast2, zhu2017bayesian}).
+Recent work by Wang {\em et al.}~\cite{wang2020practical} suggests that constraints can be applied in the context of Bayesian phylogenetic network estimation to improve computational performance; the combination of constrained estimation with more biologically realistic models and/or Bayesian methods is largely unexplored to date.
+Of particular interest to us is how locality in the solution space can be efficiently detected and then exploited (e.g., through the use of constraints) to reduce running time and to improve parallelism. Machine learning and dynamic control algorithms could be useful in this context.
+
+These computational and statistical challenges together with the large-scale sequencing efforts currently underway make it an exciting time to be working in \glspl{phylogenomic}.
+
