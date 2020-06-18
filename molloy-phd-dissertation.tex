@@ -10,42 +10,17 @@
 
 \makeatletter
 
-\usepackage{adjustbox}
-\usepackage{afterpage}
+\usepackage{setspace}  % Useful for single, 1.5, and double spacing
+\usepackage[numbers, sort]{natbib}  % Useful for formatting reference section
+%\usepackage{url}  % Useful for URLs
+\usepackage{color}  % Added by EKM
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=black]{hyperref}  % Another package useful for URLs; Updated by EKM
 
-\usepackage[ruled]{algorithm2e}
-\newcommand{\hrulealg}[0]{\vspace{0mm} \hrule \vspace{0mm}}
-
-
-\usepackage{amsfonts}
-\usepackage{amsmath} 
-\usepackage{amssymb}
-\usepackage{amstext}
-\usepackage{amsthm}
-\numberwithin{algocf}{chapter} 
-
-\renewcommand{\qedsymbol}{QED.}
- 
-\usepackage{bm}
-\usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{caption}
-\usepackage{color}
-\usepackage{comment}
-%\usepackage{fontspec}
-\usepackage[inline]{enumitem}
-\usepackage{graphicx}
-\usepackage[colorlinks=true, linkcolor=blue, citecolor=black]{hyperref}
-
-\usepackage[acronym, nopostdot, numberedsection]{glossaries} % indexonlyfirst, 
-\makenoidxglossaries
-\input{glossary}
-
-\usepackage{listings}
+\usepackage[inline]{enumitem}  % Added by EKM
 
 \usepackage{lscape}  % Useful for wide tables or figures.
-%\usepackage{pdflscape}
-% Add page numbers on landscaped pages
+% Following command definition is from Stack Exchange: https://tex.stackexchange.com/questions/278113/single-landscape-page-with-page-number-at-the-bottom 
+% It adds *rotated* page numbers to the bottom of landscaped pages to meet the Graduate College standards (see page 7 here: https://grad.illinois.edu/files/pdfs/thesis-sample-chapter-straight-numbering.pdf)
 \def\fillandplacepagenumber{
 	\par
 	\pagestyle{empty}
@@ -59,11 +34,31 @@
 	}
 }
 
-\usepackage[numbers, sort]{natbib}
-\usepackage{setspace}
-\usepackage{subcaption}
-\captionsetup[subfigure]{labelformat=empty}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FIGURE PACKAGES
+%
+\usepackage{graphicx}  % Please import figures that are *high resolution* PDFs
+%\usepackage{epsfig}   % or EPS files
+\usepackage{caption}
+%\usepackage{subfigure}  % Useful for subfigures
+\usepackage{subcaption}  % Useful for captioning subfigures
+\captionsetup[subfigure]{labelformat=empty}  % Added by EKM
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TABLE PACKAGES
+%
+\usepackage{booktabs}  % Useful for high quality tables (e.g., you can replace \hrule with \toprule, \midrule, and \bottomrule).
+\usepackage{multicol}
+%\usepackage{multirow}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MATH PACKAGES (Comment out this section if unnecessary for your dissertation)
+%
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsthm}
 
+% Change numbering of definitions, lemmas, theorems, etc to meet the Graduate College standards
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[chapter]
 \newtheorem{lemma}{Lemma}[chapter]
@@ -72,8 +67,22 @@
 \newtheorem{conjecture}{Conjecture}[chapter]
 \newtheorem{remark}{Remark}[chapter]
 
+\renewcommand{\qedsymbol}{QED.}  % Change symbol at end of proofs to meet the Graduate College standard
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% PHD DISSERTATION INFORMATION
+% ALGORITHM AND CODE PACKAGES (Comment out this section if unnecessary for your dissertation)
+%
+\usepackage{listings}  % Useful for formatting code blocks, see here for further information about formatting code: https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings
+\usepackage[ruled]{algorithm2e}  % Useful for formatting algorithms (pseudocode)
+\newcommand{\hrulealg}[0]{\vspace{0mm} \hrule \vspace{0mm}}  % Added by EKM
+\numberwithin{algocf}{chapter}     % Change numbering of algorithms to meet the Graduate College standards
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% GLOSSARY (Added by EKM)
+%
+\usepackage[acronym, nopostdot, numberedsection]{glossaries} % indexonlyfirst, 
+\makenoidxglossaries
+\input{glossary}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COVERPAGE
 %
 \phdthesis
 \title{Supertree-like methods for genome-scale species tree estimation}
