@@ -20,3 +20,6 @@ Bibtex Entry:
     url = {http://hdl.handle.net/2142/108428}
  }
 ```
+
+List of Typos:
++ Equation 2.20 should have a negative on the left side.
